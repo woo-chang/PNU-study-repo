@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment</title>
+    <style type="text/css">
+        .head {
+            color: red;
+        }
+        .space {
+            position: relative;
+            top: 15px;
+            left: 10px;
+        }
+        .for_margin {
+            margin-top: 10px;
+            margin-left: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="head space">2주차 과제</h2>
+    <form action="http://164.125.36.79/server.php" method="POST">
+        <label class="for_margin">학생 이름 : <input type="text" name="studentName" placeholder="ex) 홍길동" pattern="^[가-힣]+$" required></label><br>
+        <label class="for_margin">학번 : <input type="password" name="studentNum" placeholder="ex) 202011111" pattern="[0-9]{9}" maxlength='9' required></label><br>
+        <label class="for_margin">내가 가장 좋아하는 것은 :
+            <select name="animalList">
+                <option value="고양이">고양이</option>
+                <option value="개">개</option>
+                <option value="물고기">물고기</option>
+                <option value="새">새</option>
+           </select>
+        </label><br>
+        <label class="for_margin">종류(품종) : <input type="text" name="animalKind" placeholder="ex) 페르시안 고양이" required></label><br>
+        <label class="for_margin">학명 : <input type="text" name="scientificName" placeholder="ex) Felis" required></label><br>
+        <label class="for_margin">특징 : <textarea name="animalFeatures" cols="27" rows="4" placeholder="간략히..." required></textarea></label><br>
+        <input style="margin-left: 10px; margin-top: 10px;" type="submit" value="Submit">
+        <input style="margin-left: 20px;" type="reset" value="Reset">
+    </form>
+</body>
+</html>
