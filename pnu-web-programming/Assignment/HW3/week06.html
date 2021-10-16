@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>H3</title>
+    <style type="text/css">
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        div {
+            display: flex;
+            flex-wrap: wrap;
+            width: 250px;
+            margin-top: 10px;
+        }
+        a {
+            display: block;
+            text-decoration: none;
+            width: 120px;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            font-size: 35px;
+            border: 1px solid purple;
+            color: purple;
+            margin-right: 1px;
+            margin-bottom: 1px;
+        }
+    </style>
+    <script type="text/javascript">
+        var linkText1;
+        var linkText2;
+        var parent;
+        var links;
+
+        function checkAlert() {
+            if(linkText1.value == '') {
+                alert('Link Title을 입력해주세요.')
+                return false;
+            } else if(linkText2.value == '') {
+                alert('Link Src를 입력해주세요.')
+                return false;
+            }
+            return true;
+        }
+
+        function checkCount() {
+            if(links.length < 10) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function checkSame() {
+            for(var i = 0; i < links.length; i++) {
+                if(linkText1.value == links[i].title) {
+                    alert('중복된 Title이 있습니다.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function showList() {
+            var init = "https://";
+            var listStr = "";
+            for(var i = 0; i < links.length; i++) {
+                listStr += "<a href=" + init + links[i].src + ">" + links[i].title + "</a>";
+            }
+            parent.innerHTML = listStr;
+        }
+
+        function addLink() {
+            if(checkAlert()) {
+                if(checkCount()) {
+                    if(checkSame()) {
+                        links.push({title: linkText1.value, src: linkText2.value})
+                        linkText1.value = '';
+                        linkText2.value = '';
+                        showList();
+                    }  
+                } else {
+                    alert('요소의 최대 개수를 초과하였습니다.')
+                }
+            }
+        }
+
+        function deleteLink() {
+            var linkIndex = -1;
+            for(var i = 0; i < links.length; i++) {
+                if(linkText1.value == links[i].title) {
+                    linkIndex = i;
+                    break;
+                }
+            }
+            linkText1.value = "";
+            linkText2.value = "";
+            if(linkIndex == -1) {
+                alert('삭제할 요소가 존재하지 않습니다.')
+                return;
+            }
+            links.splice(linkIndex, 1);
+            showList();
+        }
+
+        function clearLink() {
+            links = []
+            linkText1.value = "";
+            linkText2.value = "";
+            showList();
+        }
+
+        function start() {
+            links = new Array();
+            var button1 = document.getElementById("addButton");
+            var button2 = document.getElementById("deleteButton");
+            var button3 = document.getElementById("clearButton");
+            button1.addEventListener("click", addLink, false);
+            button2.addEventListener("click", deleteLink, false);
+            button3.addEventListener("click", clearLink, false);
+            linkText1 = document.getElementById("title");
+            linkText2 = document.getElementById("src");
+            parent = document.getElementById("show");
+        }
+
+        window.addEventListener("load", start, false);
+    </script>
+</head>
+<body>
+    <label>Link Title: <input id="title" type="text"/></label>
+    <label>Link Src: <input id="src" type="text"/></label>
+    <input id="addButton" type="button" value="Add Link"/>
+    <input id="deleteButton" type="button" value="Delete Link"/>
+    <input id="clearButton" type="button" value="Clear"/>
+    <div id="show"></div>
+</body>
+</html>
