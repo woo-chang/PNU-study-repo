@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Input Type</title>
+</head>
+<body>
+    <!-- 색상표 확인 가능 -->
+    <p><label>Color: <input type="color" autofocus>Hexa ex) #ADD8E6</label></p>
+    <!-- 년도 월 일 선택 가능 -->
+    <p><label>Date: <input type="date">(yyyy-mm-dd)</label></p>
+    <!-- 형식에 알맞게 시간 입력 -->
+    <p><label>Datetime: <input type="datetime">(yyyy-mm-ddThh:mm, such as 2012-01-27T03:15)</label></p>
+    <!--  년도 월 일 시간 선택 가능 -->
+    <p><label>Datetime-local: <input type="datetime-local">(yyyy-mm-ddThh:mm, such as 2012-01-27T03:15)</label></p>
+    <!-- 이메일 입력, 미리 예시 보이게 하고, 꼭 입력해야하는 속성이 있는 듯 -->
+    <p><label>Email: <input type="email" placeholder="name@domain.com" required>(name@domain.com)</label></p>
+    <!-- 년도 월 선택 가능 -->
+    <p><label>Month: <input type="month">(yyyy-mm)</label></p>
+    <!-- 버튼적으로 숫자를 선택 가능 최솟값, 최댓값, 증가값, 초기값을 의미 -->
+    <p><label>Number: <input type="number" min="0" max="7" step="1" value="4">(Enter a number between 0 and 7)</label></p>
+    <!-- 스크롤로 값 정하는 듯, 텍스트를 쓰면 마지막 값을 시각적으로 알 수 있는 듯 -->
+    <p><label>Range: <input type="range" min="0" max="20" step="5" value="10"> 20</label></p>
+    <!-- search query 날리는 듯, name 값 지정이 필요 -->
+    <p><label>Search: <input type="search" placeholder="search query" name="q">(Enter your search query here.)</label></p>
+    <!-- 전화번호 적는 듯, 정규표현식으로 패턴 지정 가능 -->
+    <p><label>Tel: <input type="tel" placeholder="(###) ###-####" pattern="\(d{3}\) +\d{3}-\d{4}" required>(###) ###-####</label></p>
+    <!-- 오전/오후 몇시 몇분인지 선택 가능 -->
+    <p><label>Time: <input type="time">(hh:mm:ss.ff)</label></p>
+    <!-- 도메인 이름 입력하는 듯 -->
+    <p><label>URL: <input type="url" placeholder="http://www.domainname.com">(http://www.domainname.com)</label></p>
+    <!-- 년도와 몇번째 주 인지 선택 가능 -->
+    <p><label>Week: <input type="week">(yyyy-Wnn, such as 2012-W01)</label></p>
+</body>
+</html>
