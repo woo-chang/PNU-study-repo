@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>DataList</title>
+    <style type="text/css">
+        p {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" autocomplete="on">
+        <p><label for="txtList">Label</label></p>
+        <input id="txtList" type="text" placeholder="Select a month" list="months"/>
+        <datalist id="months">
+            <option value="Cat"></option>
+            <option value="Dog"></option>
+        </datalist>
+        <p style="color: blue;">Hello</p>
+    </form>
+</body>
+</html>
