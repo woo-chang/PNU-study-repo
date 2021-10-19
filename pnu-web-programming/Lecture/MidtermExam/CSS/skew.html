@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Skew</title>
+    <style type="text/css">
+        .skew {
+            margin-left: 75px;
+            background: lightgreen;
+            height: 100px;
+            width: 200px;
+            border: 3px solid darkblue;
+            animation: skew 3s infinite linear;
+        }
+        @keyframes skew {
+            from {-webkit-transform: skewX(0deg);}
+            25% {-webkit-transform: skewX(45deg);}
+            50% {-webkit-transform: skewX(0);}
+            75% {-webkit-transform: skewX(-45deg);}
+            to {-webkit-transform: skewX(0);}
+        }
+    </style>
+</head>
+<body>
+    <div class="skew">Text</div>
+</body>
+</html>

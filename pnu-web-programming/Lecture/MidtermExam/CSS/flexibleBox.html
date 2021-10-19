@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Flexible Box</title>
+    <style type="text/css">
+        .flexbox {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 600px;
+            height: 1500px;
+            background: lawngreen;
+
+        }
+        .flexbox > div:nth-child(1) {
+            border: 2px solid black;
+            width: 120px;
+            height: 400px;
+            background-color: blue;
+        }
+        .flexbox > div:nth-child(2) {
+            border: 2px solid black;
+            width: 120px;
+            height: 400px;
+            background-color: red;
+        }
+        .flexbox > div:nth-child(odd) {
+            border: 2px solid black;
+            width: 120px;
+            height: 400px;
+            background-color: blue;
+        }
+        .flexbox > div:nth-child(even) {
+            border: 2px solid black;
+            width: 120px;
+            height: 400px;
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="flexbox">
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+        <div>Hello</div>
+    </div>
+</body>
+</html>

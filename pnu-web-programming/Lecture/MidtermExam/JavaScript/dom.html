@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Dom</title>
+    <style type="text/css">
+        .highlighted {
+            color: aqua;
+        }
+    </style>
+    <script type="text/javascript">
+        var currentNode;
+        var idcount = 0;
+
+        function start() {
+            document.getElementById("byIdButton").addEventListener("click", byId, false);
+            document.getElementById("insertButton").addEventListener("click", insert, false);
+            document.getElementById("appendButton").addEventListener("click", appendNode, false);
+            document.getElementById("replaceButton").addEventListener("click", replaceCurrent, false);
+            document.getElementById("removeButton").addEventListener("click", remove, false);
+            document.getElementById("parentButton").addEventListener("click", parent, false);
+
+            currentNode = document.getElementById("bigheading");
+        }
+
+        function byId() {
+            var id = document.getElementById("gbi").value;
+            var target = document.getElementById(id);
+
+         
+            if(target) {
+                switchTo(target);
+            }
+        }
+
+        function insert() {
+            var newNode = createNewNode(document.getElementById("ins").value);
+            currentNode.parentNode.insertBefore(newNode, currentNode);
+            switchTo(newNode);
+        }
+
+        function appendNode() {
+            var newNode = createNewNode(document.getElementById("append").value);
+            currentNode.appendChild(newNode);
+            switchTo(newNode);
+        }
+
+        function replaceCurrent() {
+            var newNode = createNewNode(document.getElementById("replace").value);
+            currentNode.parentNode.replaceChild(newNode, currentNode);
+            switchTo(newNode);
+        }
+
+        function remove() {
+            if(currentNode.parentNode == document.body) {
+                alert("Can't remove a top-level element.");
+            } else {
+                var oldNode = currentNode;
+                switchTo(oldNode.parentNode);
+                currentNode.removeChild(oldNode);
+            }
+        }
+
+        function parent() {
+            var target = currentNode.parentNode;
+
+            if(target != document.body) switchTo(target);
+            else alert("No parent.");
+        }
+
+        function createNewNode(text) {
+            var newNode = document.createElement("p");
+            nodeId = "new" + idcount;
+            ++idcount;
+            newNode.setAttribute("id", nodeId);
+            text = "[" + nodeId + "]" + text;
+            newNode.appendChild(document.createTextNode(text));
+            return newNode;
+        }
+
+        function switchTo(newNode) {
+            currentNode.setAttribute("class", "");
+            currentNode = newNode;
+            currentNode.setAttribute("class", "highlighted");
+            document.getElementById("gbi").value = currentNode.getAttribute("id");
+        }
+
+        window.addEventListener("load", start, false);
+    </script>
+</head>
+<body>
+    <h1 id="bigheading" class="highlighted">[bigheading] DHTML Object Model</h1>
+    <h3 id="smallheading">[smallheading] Element Functionality</h3>
+    <p id="para1">[para1] The Document Object Model (DOM) allows for quick,
+        dynamic access to all elements in an HTML5 document for manipulation with JavaScript.
+    </p>
+    <p id="para2">[para2] For more information, check out the "JavaScript and the DOM" section of Deitel's</p>
+    <p id="para3">[para3] The buttons below demonstrate:(list)</p>
+    <ul id="list">
+        <li id="item1">[item1] getElementById and parentNode</li>
+        <li id="item2">[item2] insertBefore and appendChild</li>
+        <li id="item3">[item3] replaceChild and removeChild</li>
+    </ul>
+    <div id="nav" class="nav">
+        <form onsubmit="return false" action="#">
+            <p>
+                <input type="text" id="gbi" value="bigheading">
+                <input type="button" value="Get By id" id="byIdButton">
+            </p>
+            <p>
+                <input type="text" id="ins">
+                <input type="button" value="Insert Before" id="insertButton">
+            </p>
+            <p>
+                <input type="text" id="append">
+                <input type="button" value="Append Child" id="appendButton">
+            </p>
+            <p>
+                <input type="text" id="replace">
+                <input type="button" value="Replace Current" id="replaceButton">
+            </p>
+            <p>
+                <input type="button" value="Remove Current" id="removeButton">
+            </p>
+            <p>
+                <input type="button" value="Get Parent" id="parentButton">
+            </p>
+        </form>
+    </div>
+</body>
+</html>
