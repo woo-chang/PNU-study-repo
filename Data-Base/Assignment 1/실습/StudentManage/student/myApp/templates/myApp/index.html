@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Categories Database:</title>
+    <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
+    <style>
+        #header {
+            background-color: #3365AC;
+            height: 50px;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 200px;
+        }
+        #addButtonBox {
+            width: 100%;
+            padding-top: 50px;
+        }
+        #searchButtonBox {
+            width: 100%;
+            padding-top: 25px;
+            padding-bottom: 25px;
+        }
+        #addButton {
+            color: white;
+            background-color: #47C83E;
+            font-size: 13px;
+            width: 130px;
+            height: 25px;
+            text-align: center;
+            border-radius: 5px;
+            margin-left: 700px;
+        }
+        #searchButton {
+            display: inline-block;
+            background-color: #3365AC;
+            font-size: 13px;
+            color: white;
+            width: 120px;
+            height: 25px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border: 1px solid #DBDBDB;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #DBDBDB;
+            padding: 10px;
+        }
+        #editButton {
+            float: left;
+            background-color: #74BEDA;
+            font-size: 15px;
+            width: 110px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            border-radius: 5px;
+            margin-right: 3px;
+            text-decoration-line: none;
+        }
+        #deleteButton {
+            float: left;
+            background-color: #CA5C54;
+            font-size: 15px;
+            width: 120px;
+            height: 30px;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 30px;
+            text-decoration-line: none;
+        }
+        .tableH {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div id="header">
+    Student Management System
+</div>
+<div>
+    <div id="addButtonBox">
+        <form action="{% url 'create' %}" method="post">
+            {% csrf_token %}
+            <input id="addButton" type="submit" value="+ Add New Record">
+        </form>
+
+    </div>
+    <div id="searchButtonBox">
+        <form action="{% url 'search' %}">
+            <input id="searchInput" type="number" name="q" placeholder="Search">
+            <input id="searchButton" value="Search by name" type="submit">
+        </form>
+    </div>
+</div>
+<table>
+    <tr>
+        <td class="tableH">ID</td>
+        <td class="tableH">First name</td>
+        <td class="tableH">Second name</td>
+        <td class="tableH">Age</td>
+        <td class="tableH">Major</td>
+        <td class="tableH">Address</td>
+        <td class="tableH" style="width: 250px;"></td>
+    </tr>
+{% for student in students %}
+    <tr>
+        <td>{{ student.id }}</td>
+        <td>{{ student.firstname }}</td>
+        <td>{{ student.secondname }}</td>
+        <td>{{ student.age }}</td>
+        <td>{{ student.major }}</td>
+        <td>{{ student.address }}</td>
+        <td style="width: 250px;">
+            <a href="/edit/{{student.id}}" id="editButton"><i class="fas fa-pen"></i> Edit record</a>
+            <a href="/remove/{{student.id}}" id="deleteButton"><i class="fas fa-eraser"></i> Delete record</a>
+        </td>
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>

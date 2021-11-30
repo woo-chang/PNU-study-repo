@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Categories Database:</title>
+    <script src="https://use.fontawesome.com/releases/v5.2.0/js/all.js"></script>
+    <style>
+        #header {
+            background-color: #3365AC;
+            height: 50px;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 200px;
+        }
+        table {
+            width: 100%;
+            border: 1px solid #DBDBDB;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #DBDBDB;
+            padding: 10px;
+        }
+        .tableH {
+            font-weight: bold;
+        }
+        .title {
+            text-align: center;
+            font-size: 25px;
+            margin-bottom: 50px;
+        }
+        .context {
+            text-align: center;
+            font-size: 25px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="header">
+    Student Management System
+</div>
+<div>
+    <h3 class="title">Search results</h3>
+    {% if messages %}
+        {% for message in messages %}
+        <div class="context">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
+<table>
+    <tr>
+        <td class="tableH">ID</td>
+        <td class="tableH">First name</td>
+        <td class="tableH">Second name</td>
+        <td class="tableH">Age</td>
+        <td class="tableH">Major</td>
+        <td class="tableH">Address</td>
+    </tr>
+{% for student in students %}
+    <tr>
+        <td>{{ student.id }}</td>
+        <td>{{ student.firstname }}</td>
+        <td>{{ student.secondname }}</td>
+        <td>{{ student.age }}</td>
+        <td>{{ student.major }}</td>
+        <td>{{ student.address }}</td>
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>

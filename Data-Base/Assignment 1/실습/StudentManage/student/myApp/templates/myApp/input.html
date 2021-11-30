@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #header {
+            background-color: #3365AC;
+            height: 50px;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 200px;
+        }
+        .title {
+            font-size: 23px;
+            margin-left: 50px;
+        }
+        label {
+            display: inline-block;
+            width: 70px;
+            text-align: center;
+            margin-bottom: 5px;
+            padding-bottom: 20px;
+        }
+        .container {
+            margin-top: 40px;
+            margin-left: 400px;
+        }
+        .submitBtn {
+            background-color: #3365AC;
+            border-radius: 5px;
+            width: 70px;
+            height: 35px;
+            color: white;
+            font-size: 15px;
+            margin-left: 70px;
+        }
+    </style>
+</head>
+<body>
+<div id="header">
+    Student Management System
+</div>
+<div class="container">
+    <p class="title">Add new record</p>
+    <form action="" method="post">
+    {% csrf_token %}
+        <div>
+            <label>ID: </label>{{ form.id }}
+        </div>
+        <div>
+            <label>First name: </label>{{ form.firstname }}
+        </div>
+        <div>
+            <label>Second name: </label>{{ form.secondname }}
+        </div>
+        <div>
+            <label>Age: </label>{{ form.age }}
+        </div>
+        <div>
+            <label>Major: </label>{{ form.major }}
+        </div>
+        <div>
+            <label>Address: </label>{{ form.address }}
+        </div>
+        <button type="submit" class="submitBtn">Submit</button>
+    </form>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+</body>
+</html>
