@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>HW05</title>
+    <style type="text/css">
+        #linkContainer {
+            display: flex;
+            flex-wrap: wrap;
+            width: 310px;
+        }
+        #linkContainer a {
+            display: block;
+            list-style-type: none;
+            text-align: center;
+            font-size: 3em;
+            border: 1px solid;
+            width: 150px;
+            float: left;
+            margin: 1px;
+        }        
+        a { 
+            text-decoration: none;
+        }
+        .pagination {
+            visibility: hidden;
+            display: inline-block;
+        }
+        .pagination div {
+            float: left;
+            padding: 8px 16px;
+        }
+        .pagination div.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .pagination div:hover:not(.active) {background-color: #ddd;}
+        .maindiv {
+            width: 320px;
+            float: left;
+        }
+        iframe {
+            width: 500px;
+            height: 500px;
+            float: left;
+        }
+    </style>
+    <script type="text/javascript">
+        var curPage = 0;
+        function addLink()
+        {
+            if (document.forms[0].linkTitle.value == "" || document.forms[0].linkSrc.value == "")
+            {
+                window.alert("추가할 즐겨찾기의 제목과 링크를 모두 입력해주세요.");
+                return;
+            }
+
+            document.forms[0].mode.value = "insert";
+            insertData()
+        }
+
+        function insertData() {
+            var title = document.forms[0].linkTitle.value
+            var src = document.forms[0].linkSrc.value
+            fetch("http://localhost:3000/insert", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    linkTitle: title,
+                    linkSrc: src,
+                })
+            }).then(function(response) {
+                return response.json()
+            }).then(function(myJSON) {
+                if(myJSON[0].linkTitle == 'error') {
+                    makeAlert(myJSON[0].message)
+                } else {
+                    makePages()
+                    showLinks()
+                }
+            })
+            document.forms[0].linkTitle.value = '';
+            document.forms[0].linkSrc.value = '';   
+        }
+
+        function showLinks()
+        {
+            var linkContainer = document.getElementById("linkContainer");
+            linkContainer.innerHTML = "";
+
+            var startIdx = curPage * 10;
+            var endIdx = startIdx + 9;
+            fetch("http://localhost:3000/list", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+            }).then(function(response) {
+                return response.json()
+            }).then(function(myJSON) {
+                if(myJSON[0].linkTitle == 'error') {
+                    makeAlert(myJSON[0].message)
+                } else {
+                    for(var idx = startIdx; idx <= endIdx && idx < myJSON.length; idx++)
+                    {
+                        var link = makeLink(myJSON[idx].linkTitle, myJSON[idx].linkSrc);
+                        linkContainer.innerHTML += link;
+                    }
+                }
+            })
+        }
+
+        function makeLink(title, src)
+        {
+            return "<a href='https://" + src + "' target=\"linkFrame\">" + title + "</a>";
+        }
+        
+        function deleteLink()
+        {
+            if (document.forms[0].linkTitle.value == "")
+            {
+                window.alert("제거할 즐겨찾기의 제목을 입력해주세요.");
+                return;
+            }
+            document.forms[0].mode.value = "delete";
+            var title = document.forms[0].linkTitle.value
+            fetch("http://localhost:3000/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    linkTitle: title
+                })
+            }).then(function(response) {
+                return response.json()
+            }).then(function(myJSON) {
+                if(myJSON[0].linkTitle == 'error') {
+                    makeAlert(myJSON[0].message)
+                } else {
+                    makePages()
+                    showLinks()
+                }
+            })
+            document.forms[0].linkTitle.value = '';
+            document.forms[0].linkSrc.value = '';
+        }
+
+        function clearAll()
+        {
+            document.forms[0].mode.value = "delete_all";
+            fetch("http://localhost:3000/deleteAll", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+            }).then(function(response) {
+                return response.json()
+            }).then(function(myJSON) {
+                if(myJSON[0].linkTitle == 'error') {
+                    makeAlert(myJSON[0].message)
+                } else {
+                    window.alert('데이터베이스가 초기화 되었습니다.')
+                    makePages()
+                    showLinks()
+                }
+            })
+            document.forms[0].linkTitle.value = '';
+            document.forms[0].linkSrc.value = '';
+        }
+        
+        function makePages()
+        {
+            fetch("http://localhost:3000/list", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+            }).then(function(response) {
+                return response.json()
+            }).then(function(myJSON) {
+                if(myJSON[0].linkTitle == 'error') {
+                    makeAlert(myJSON[0].message)
+                } else {
+                    if(myJSON.length > 10) {
+                        var pageNav = document.getElementById("pageNav");
+                        pageNav.style.visibility = "visible";
+                        pageNav.innerHTML = "";
+                        var nPage = Math.ceil(myJSON.length / 10);
+                        for(var i =0; i < nPage; i++)
+                        {
+                            if (i == curPage)
+                                pageNav.innerHTML += "<div class=\"active\" onclick=\"changePage(" + i +")\">" + (i + 1) + "</div>";
+                            else
+                                pageNav.innerHTML += "<div onclick=\"changePage(" + i +")\">" + (i + 1) + "</div>";
+                        }
+                    } else {
+                        curPage = 0
+                        var pageNav = document.getElementById("pageNav");
+                        pageNav.style.visibility = "hidden";
+                    }
+                }
+            })
+        }
+
+        function changePage(pageNum)
+        {
+            curPage = pageNum
+            document.forms[0].mode.value = "select";
+            makePages();
+            showLinks();
+        }
+        
+        function makeAlert(error)
+        {
+            window.alert(error)
+            return;
+        }
+
+        function start()
+        {
+            showLinks()
+            makePages();
+        }
+    </script>
+    </head>
+<body onload="start()">
+    <div class="maindiv">
+        <form name="form1" method="POST">
+            <label>즐겨찾기 제목: <input type="text" name="linkTitle" id="linkTitle"></label><br>
+            <label>즐겨찾기 링크: <input type="text" name="linkSrc" id="linkSrc"></label><br>
+            <input type="button" name="addBtn" id="addBtn" value="즐겨찾기 추가" onclick="addLink()">
+            <input type="button" name="delBtn" id="delBtn" value="즐겨찾기 삭제" onclick="deleteLink()">
+            <input type="reset" name="ClearBtn" id="clearBtn" value="모두 삭제" onclick="clearAll()">
+            <input type="hidden" name="mode" id="mode" value="select"/>
+        </form>
+        <br>
+        <div id="linkContainer">
+        </div>
+        <nav class="pagination" id="pageNav">
+        </nav>
+    </div>
+    <iframe title="iframe for link" name="linkFrame"></iframe>
+</body>
+</html>

@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'studentdb',
         'USER': 'root',
         'PASSWORD': 'woo7ang',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '3306'
     }
 }
