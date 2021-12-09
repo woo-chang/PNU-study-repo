@@ -11,23 +11,26 @@
 
 #include <stdio.h>
 
-#define SPEED_RATIO 0.5 // [-]
+#define SPEED_RATIO 0.5	 // [-]
 #define EMERGENCY_TIME 5 // [s]
-#define DISTANCE 10 // [cm]
+#define DISTANCE 10		 // [cm]
 
+int on_off = 0; // ìë™ì°¨ ì „ì› ë²„íŠ¼ (1:on, 0:off)
+int is_dangerous = 0;
 
-
-int on_off=0; // ÀÚµ¿Â÷ Àü¿ø ¹öÆ° (1:on, 0:off) 
-int is_dangerous=0;
-
-int motor_state=0; // ÀÚµ¿Â÷ ¿îÀü Á¦¾îÇÒ ¶§ ÇÊ¿äÇÑ º¯¼ö 
-enum _MOTOR {	// ÀÚµ¿Â÷ ¿îÀü »óÅÂ 
+int motor_state = 0; // ìë™ì°¨ ìš´ì „ ì œì–´í•  ë•Œ í•„ìš”í•œ ë³€ìˆ˜
+enum _MOTOR
+{ // ìë™ì°¨ ìš´ì „ ìƒíƒœ
 	Stop,
-	// ÇÊ¿äÇÏ¸é »óÅÂ¸¦ Ãß°¡ÇÏ°Å³ª ÇÔ¼ö¿¡ ¸Å°³º¯¼ö¸¦ Ãß°¡ÇÒ ¼ö ÀÖÀ½
-	// Àü¹æÀ¸·Î ÁÂÈ¸ÀüÇÒ °æ¿ì ÇÏ³ªÀÇ Àü¹æÁÂÈ¸Àü¸¸À¸·Î Á¦¾îÇÏ±â Èûµé °æ¿ì 
-	Forward, Forward_Left, Forward_Right,
-	Backward, Backward_Left, Backward_Right
-} MOTOR; 
+	// í•„ìš”í•˜ë©´ ìƒíƒœë¥¼ ì¶”ê°€í•˜ê±°ë‚˜ í•¨ìˆ˜ì— ë§¤ê°œë³€ìˆ˜ë¥¼ ì¶”ê°€í•  ìˆ˜ ìˆìŒ
+	// ì „ë°©ìœ¼ë¡œ ì¢ŒíšŒì „í•  ê²½ìš° í•˜ë‚˜ì˜ ì „ë°©ì¢ŒíšŒì „ë§Œìœ¼ë¡œ ì œì–´í•˜ê¸° í˜ë“¤ ê²½ìš°
+	Forward,
+	Forward_Left,
+	Forward_Right,
+	Backward,
+	Backward_Left,
+	Backward_Right
+} MOTOR;
 void Motor_Stop();
 void Motor_Forward();
 void Motor_Forward_Left();
@@ -36,56 +39,49 @@ void Motor_Backward();
 void Motor_Backward_Left();
 void Motor_Backward_Right();
 
-// PWM °í·ÁÇßÀ» ¶§ (TIM3 CH1-4, TIM4 CH1-4 »ç¿ë)
-// »¡°£¼±ÀÌ +, °ËÀº¼±ÀÌ -, Àß ²Å±â (»¡°£»ö ¾Õ¹øÈ£¿¡ ²ÅÀ¸¸é µÉ µí?)
-int wheel[8]={GPIO_Pin_6, GPIO_Pin_7, // Front Left +- / PA6,7 / TIM3_CH1,2
-              GPIO_Pin_0, GPIO_Pin_1, // Front Right +- / PB0,1 / TIM3_CH3,4
-              GPIO_Pin_6, GPIO_Pin_7, // Back Left +- / PB6,7 / TIM4_CH1,2
-              GPIO_Pin_8, GPIO_Pin_9} // Back Right +- / PB8,9 / TIM4_CH3,4
-// PWM Á¦¾î¿¡ ÇÊ¿ä 
+// PWM ê³ ë ¤í–ˆì„ ë•Œ (TIM3 CH1-4, TIM4 CH1-4 ì‚¬ìš©)
+// ë¹¨ê°„ì„ ì´ +, ê²€ì€ì„ ì´ -, ì˜ ê¼½ê¸° (ë¹¨ê°„ìƒ‰ ì•ë²ˆí˜¸ì— ê¼½ìœ¼ë©´ ë  ë“¯?)
+int wheel[8] = {GPIO_Pin_6, GPIO_Pin_7, // Front Left +- / PA6,7 / TIM3_CH1,2
+				GPIO_Pin_0, GPIO_Pin_1, // Front Right +- / PB0,1 / TIM3_CH3,4
+				GPIO_Pin_6, GPIO_Pin_7, // Back Left +- / PB6,7 / TIM4_CH1,2
+				GPIO_Pin_8, GPIO_Pin_9} // Back Right +- / PB8,9 / TIM4_CH3,4
+// PWM ì œì–´ì— í•„ìš”
 TIM_OCInitTypeDef TIM_OCInitStructure;
 
-// Ultrasonic Sensor, ¿ŞÂÊÀÌ trig, ¿À¸¥ÂÊÀÌ echo ÇÉ 
-// Read_Distance ÇÔ¼ö ³»ºÎ¿¡ GPIOE·Î °íÁ¤ÇØµ×±â ¶§¹®¿¡ ÇÉ ¹øÈ£¸¸ ÀúÀåÇÑ´Ù. 
-int Ultrasonic_pin[12]={GPIO_Pin_2, GPIO_Pin_3, // Àü¹æ ÁÂÃø 
-						GPIO_Pin_4, GPIO_Pin_5, // Àü¹æ Áß¾Ó 
-						GPIO_Pin_6, GPIO_Pin_7, // Àü¹æ ¿ìÃø 
-						GPIO_Pin_8, GPIO_Pin_9, // ÈÄ¹æ ÁÂÃø 
-						GPIO_Pin_10, GPIO_Pin_11, // ÈÄ¹æ Áß¾Ó 
-						GPIO_Pin_12, GPIO_Pin_13} // ÈÄ¹æ ¿ìÃø 
-volatile uint32_t Ultrasonic_distance; // ¼¾¼­°ª
-int Ultrasonic_prev[6]={0,0,0,0,0,0}; // °¡±î¿î °ÍÀ» °¨ÁöÇßÀ» ¶§ ¾î´À ºÎºĞ¿¡¼­ ±×·¨´ÂÁö Æ¯Á¤ ¼ø°£±îÁö ÀúÀå 
-int Ultrasonic_curr[6]={0,0,0,0,0,0}; // ÃÊÀ½ÆÄ ¼¾¼­°ªÀÌ ±âÁØÄ¡¿¡ ÇØ´çÇÏ´ÂÁö¿¡ µû¶ó °ªÀÌ °è¼Ó º¯ÇÏ´Â Çà·Ä 
+// Ultrasonic Sensor, ì™¼ìª½ì´ trig, ì˜¤ë¥¸ìª½ì´ echo í•€
+// Read_Distance í•¨ìˆ˜ ë‚´ë¶€ì— GPIOEë¡œ ê³ ì •í•´ë’€ê¸° ë•Œë¬¸ì— í•€ ë²ˆí˜¸ë§Œ ì €ì¥í•œë‹¤.
+int Ultrasonic_pin[12] = {GPIO_Pin_2, GPIO_Pin_3,	// ì „ë°© ì¢Œì¸¡
+						  GPIO_Pin_4, GPIO_Pin_5,	// ì „ë°© ì¤‘ì•™
+						  GPIO_Pin_6, GPIO_Pin_7,	// ì „ë°© ìš°ì¸¡
+						  GPIO_Pin_8, GPIO_Pin_9,	// í›„ë°© ì¢Œì¸¡
+						  GPIO_Pin_10, GPIO_Pin_11, // í›„ë°© ì¤‘ì•™
+						  GPIO_Pin_12, GPIO_Pin_13} // í›„ë°© ìš°ì¸¡
+volatile uint32_t Ultrasonic_distance;				// ì„¼ì„œê°’
+int Ultrasonic_prev[6] = {0, 0, 0, 0, 0, 0};		// ê°€ê¹Œìš´ ê²ƒì„ ê°ì§€í–ˆì„ ë•Œ ì–´ëŠ ë¶€ë¶„ì—ì„œ ê·¸ë¬ëŠ”ì§€ íŠ¹ì • ìˆœê°„ê¹Œì§€ ì €ì¥
+int Ultrasonic_curr[6] = {0, 0, 0, 0, 0, 0};		// ì´ˆìŒíŒŒ ì„¼ì„œê°’ì´ ê¸°ì¤€ì¹˜ì— í•´ë‹¹í•˜ëŠ”ì§€ì— ë”°ë¼ ê°’ì´ ê³„ì† ë³€í•˜ëŠ” í–‰ë ¬
 float Read_Distance(unit16_t trig, uint16_t echo);
 void Close_Or_Not();
 
 // Line-Tracing Sensor
-// Line_Or_Not ÇÔ¼ö ³»ºÎ¿¡ GPIOE·Î °íÁ¤ÇØµ×±â ¶§¹®¿¡ ÇÉ ¹øÈ£¸¸ ÀúÀåÇÑ´Ù. 
-int LT_pin[2]={GPIO_Pin_14, GPIO_Pin_15}; // ÁÂ, ¿ì 
-// ¼¾¼­°ªÀÌ Èò»öÀÌ¸é 1, °ËÀº»öÀÌ°Å³ª °Å¸®°¡ ¸Ö¸é 0ÀÌ ³ª¿Â´Ù. 
-int LT_curr[2]={1,1}; // ¼¾¼­°ª¿¡ µû¶ó °ªÀÌ °è¼Ó º¯ÇÏ´Â Çà·Ä 
-int LT_prev[2]={1,1}; // °¨ÁöÇßÀ» ¶§ ¾î´À ºÎºĞ¿¡¼­ ±×·¨´ÂÁö Æ¯Á¤ ¼ø°£±îÁö ÀúÀå 
+// Line_Or_Not í•¨ìˆ˜ ë‚´ë¶€ì— GPIOEë¡œ ê³ ì •í•´ë’€ê¸° ë•Œë¬¸ì— í•€ ë²ˆí˜¸ë§Œ ì €ì¥í•œë‹¤.
+int LT_pin[2] = {GPIO_Pin_14, GPIO_Pin_15}; // ì¢Œ, ìš°
+// ì„¼ì„œê°’ì´ í°ìƒ‰ì´ë©´ 1, ê²€ì€ìƒ‰ì´ê±°ë‚˜ ê±°ë¦¬ê°€ ë©€ë©´ 0ì´ ë‚˜ì˜¨ë‹¤.
+int LT_curr[2] = {1, 1}; // ì„¼ì„œê°’ì— ë”°ë¼ ê°’ì´ ê³„ì† ë³€í•˜ëŠ” í–‰ë ¬
+int LT_prev[2] = {1, 1}; // ê°ì§€í–ˆì„ ë•Œ ì–´ëŠ ë¶€ë¶„ì—ì„œ ê·¸ë¬ëŠ”ì§€ íŠ¹ì • ìˆœê°„ê¹Œì§€ ì €ì¥
 void Line_Or_Not();
 
-void Parking(); // Àü¿ªº¯¼ö motor_state¿¡ µû¶ó¼­ Çàµ¿ 
-
-
+void Parking(); // ì „ì—­ë³€ìˆ˜ motor_stateì— ë”°ë¼ì„œ í–‰ë™
 
 // ====================================================================
 
-
-uint32_t usTime=0; // ¸ğµç ½Ã°£ ´ÜÀ§ us 
+uint32_t usTime = 0; // ëª¨ë“  ì‹œê°„ ë‹¨ìœ„ us
 void Normal_Delay(void);
-// ¿øÇÏ´Â ½Ã°£¸¸Å­ µô·¹ÀÌ ½ÃÄÑÁÖ´Â ÇÔ¼ö 
+// ì›í•˜ëŠ” ì‹œê°„ë§Œí¼ ë”œë ˆì´ ì‹œì¼œì£¼ëŠ” í•¨ìˆ˜
 void Delay(uint32_t delayTime);
-
-
 
 void RCC_Configure(void);
 void GPIO_Configure(void);
 void USART_Configure(void);
-
-
 
 void TIM2_Configure(void);
 void TIM2_IRQHandler(void);
@@ -94,11 +90,11 @@ void TIM3_Configure(void);
 void TIM4_Configure(void);
 void PWM_Change(int timerNum, int timerChannel, float dutyCycle);
 
-// ÃÊÀ½ÆÄ ¼¾¼­°ªÀ» ¹Ş±â À§ÇØ ¼³Á¤ 
+// ì´ˆìŒíŒŒ ì„¼ì„œê°’ì„ ë°›ê¸° ìœ„í•´ ì„¤ì •
 void ADC_Configure();
-// ¶óÀÎ Æ®·¹ÀÌ½Ì ¼¾¼­°ª  
+// ë¼ì¸ íŠ¸ë ˆì´ì‹± ì„¼ì„œê°’
 
-// ºí·çÅõ½º¿Í Á¶ÀÌ½ºÆ½ °ü·Ã Á¦¾î - ÃßÈÄ Ãß°¡ ¿¹Á¤ 
+// ë¸”ë£¨íˆ¬ìŠ¤ì™€ ì¡°ì´ìŠ¤í‹± ê´€ë ¨ ì œì–´ - ì¶”í›„ ì¶”ê°€ ì˜ˆì •
 void EXTI_Configure();
 
 void EXTI15_10_IRQHandler();
@@ -106,6 +102,5 @@ void EXTI2_IRQHandler();
 void EXTI3_IRQHandler();
 void EXTI4_IRQHandler();
 void EXTI9_5_IRQHandler();
-// ÀÌÈÄ ¼öÁ¤ ¿¹Á¤ 
+// ì´í›„ ìˆ˜ì • ì˜ˆì •
 void NVIC_Configure();
-

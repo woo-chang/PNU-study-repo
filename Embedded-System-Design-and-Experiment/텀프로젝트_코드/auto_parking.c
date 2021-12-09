@@ -2,53 +2,62 @@
 
 // Configuration =====================================================
 
-void Normal_Delay(void) {
-	for(int i=0;i<2000000;i++);
+void Normal_Delay(void)
+{
+	for (int i = 0; i < 2000000; i++)
+		;
 }
-// ¿øÇÏ´Â ½Ã°£¸¸Å­ µô·¹ÀÌ ½ÃÄÑÁÖ´Â ÇÔ¼ö
-void Delay(uint32_t delay_time){
-	uint32_t prev_time=us_time;
-	while(1){ if(usTime-prev_time>delayTime) break;}
-} 
+// ì›í•˜ëŠ” ì‹œê°„ë§Œí¼ ë”œë ˆì´ ì‹œì¼œì£¼ëŠ” í•¨ìˆ˜
+void Delay(uint32_t delay_time)
+{
+	uint32_t prev_time = us_time;
+	while (1)
+	{
+		if (usTime - prev_time > delayTime)
+			break;
+	}
+}
 
-void RCC_Configure(void) {
+void RCC_Configure(void)
+{
 	// GPIOA, PA2,3 : USART2 TX,RX, PA6,7 : MotorFL (+ PA9,10 : USART1 TX,RX)
 	// GPIOB, PB0,1 : MotorFR, PB6,7 : MotorBL, PB8,9 : MotorBR
 	// GPIOC
 	// GPIOD, PD2-4,7 : LED, PD11 : S1 Button
-	// GPIOE, PE2-13 : 6 Ultrasonic Sensors, PE14,15 : 2 Line Tracing Sensors 
+	// GPIOE, PE2-13 : 6 Ultrasonic Sensors, PE14,15 : 2 Line Tracing Sensors
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
-						   RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
-				   		   RCC_APB2Periph_GPIOE, ENABLE);
-	
+							   RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
+							   RCC_APB2Periph_GPIOE,
+						   ENABLE);
+
 	// Alternate Function IO clock enable
-	// ¿ÜºÎ ÀåÄ¡ÀÎ ÃÊÀ½ÆÄ °Å¸® ¼¾¼­³ª ¶óÀÎ ¼¾¼­ÀÇ °ªÀ» ÅëÇØ Interrupt¸¦ ÁÖ±â À§ÇØ¼­´Â ÇÊ¿ä // TODO, ADC Interrupt
+	// ì™¸ë¶€ ì¥ì¹˜ì¸ ì´ˆìŒíŒŒ ê±°ë¦¬ ì„¼ì„œë‚˜ ë¼ì¸ ì„¼ì„œì˜ ê°’ì„ í†µí•´ Interruptë¥¼ ì£¼ê¸° ìœ„í•´ì„œëŠ” í•„ìš” // TODO, ADC Interrupt
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-	// USART2, ºí·çÅõ½º¸¦ ÅëÇØ ÈŞ´ëÆù°úÀÇ Åë½Å
+	// USART2, ë¸”ë£¨íˆ¬ìŠ¤ë¥¼ í†µí•´ íœ´ëŒ€í°ê³¼ì˜ í†µì‹ 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	// TIM2, ÃÊÀ½ÆÄ ¼¾¼­·Î ÃøÁ¤ÇÑ °Å¸®°¡ ³Ê¹« °¡±î¿ï ¶§ ¸ØÃß°í ±×¶§ºÎÅÍ ½Ã°£À» ¼¾´Ù.
-	// TIM3,4, ¿ÜºÎ Àü¿øÀ» ÀÌ¿ëÇÏ¿© PWMÀ¸·Î ¸ğÅÍ¸¦ Á¦¾îÇÑ´Ù. 
+	// TIM2, ì´ˆìŒíŒŒ ì„¼ì„œë¡œ ì¸¡ì •í•œ ê±°ë¦¬ê°€ ë„ˆë¬´ ê°€ê¹Œìš¸ ë•Œ ë©ˆì¶”ê³  ê·¸ë•Œë¶€í„° ì‹œê°„ì„ ì„¼ë‹¤.
+	// TIM3,4, ì™¸ë¶€ ì „ì›ì„ ì´ìš©í•˜ì—¬ PWMìœ¼ë¡œ ëª¨í„°ë¥¼ ì œì–´í•œë‹¤.
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 	// ADC1
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 }
-void GPIO_Configure(void) {
+void GPIO_Configure(void)
+{
 	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	// USART2 TX 
+
+	// USART2 TX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; // AFIO ¾²±â ¶§¹®¿¡ 
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; // AFIO ì“°ê¸° ë•Œë¬¸ì—
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	// USART2 RX
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	// GPIO_IN_FLOATINGµµ »ç¿ëÇÒ ¼ö ÀÖ´Ù (¹öÆ°, ¼¾¼­), Speed´Â GPIO_Speed_50MHz·Î 
+	// GPIO_IN_FLOATINGë„ ì‚¬ìš©í•  ìˆ˜ ìˆë‹¤ (ë²„íŠ¼, ì„¼ì„œ), SpeedëŠ” GPIO_Speed_50MHzë¡œ
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	
 	// Motor (FL, FR, BL, BR)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
@@ -58,8 +67,7 @@ void GPIO_Configure(void) {
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	
-	
+
 	// 6 Ultrasonic Sensors
 	// TRIG
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12;
@@ -70,232 +78,245 @@ void GPIO_Configure(void) {
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_7 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	
-	
+
 	// 2 Line Tracing Sensors
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-	
-	
+
 	// LED
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
-void USART_Configure(void) {
+void USART_Configure(void)
+{
 	USART_InitTypeDef USART_InitStructure;
-	
+
 	// USART2
 	USART_Cmd(USART2, ENABLE);
-	USART_InitStructure.USART_BaudRate = 9600; // µ¥ÀÌÅÍ Àü¼Û ¼Óµµ ÁöÁ¤
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b; // ÇÁ·¹ÀÓ¿¡¼­ Àü¼ÛµÇ°Å³ª ¼ö½ÅµÇ´Â µ¥ÀÌÅÍ ºñÆ® ¼ö¸¦ ÁöÁ¤
-	USART_InitStructure.USART_StopBits = USART_StopBits_1; // ´Ü¾îÀÇ ³¡À» ÀÇ¹ÌÇÏ´Â Stop Bit °³¼ö¸¦ ¼³Á¤
-	USART_InitStructure.USART_Parity = USART_Parity_No; // ÆĞ¸®Æ¼(¿À·ù °ËÃâ) È°¼ºÈ­, ºñÈ°¼ºÈ­ °áÁ¤ -> MSB°¡ ÆĞ¸®Æ¼ ºñÆ®
-	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx; // ¾î¶² Mode »ç¿ëÇÒÁö ÁöÁ¤ (¼ö½Å ¶Ç´Â Àü¼Û ¸ğµå¸¦ È°¼ºÈ­ ¶Ç´Â ºñÈ°¼ºÈ­)
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // ÇÏµå¿ş¾î Èå¸§ Á¦¾î¸ğµå¸¦ »ç¿ëÇÏ°Å³ª »ç¿ëÇÏÁö ¾Êµµ·Ï ÁöÁ¤
+	USART_InitStructure.USART_BaudRate = 9600;										// ë°ì´í„° ì „ì†¡ ì†ë„ ì§€ì •
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;						// í”„ë ˆì„ì—ì„œ ì „ì†¡ë˜ê±°ë‚˜ ìˆ˜ì‹ ë˜ëŠ” ë°ì´í„° ë¹„íŠ¸ ìˆ˜ë¥¼ ì§€ì •
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;							// ë‹¨ì–´ì˜ ëì„ ì˜ë¯¸í•˜ëŠ” Stop Bit ê°œìˆ˜ë¥¼ ì„¤ì •
+	USART_InitStructure.USART_Parity = USART_Parity_No;								// íŒ¨ë¦¬í‹°(ì˜¤ë¥˜ ê²€ì¶œ) í™œì„±í™”, ë¹„í™œì„±í™” ê²°ì • -> MSBê°€ íŒ¨ë¦¬í‹° ë¹„íŠ¸
+	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;					// ì–´ë–¤ Mode ì‚¬ìš©í• ì§€ ì§€ì • (ìˆ˜ì‹  ë˜ëŠ” ì „ì†¡ ëª¨ë“œë¥¼ í™œì„±í™” ë˜ëŠ” ë¹„í™œì„±í™”)
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; // í•˜ë“œì›¨ì–´ íë¦„ ì œì–´ëª¨ë“œë¥¼ ì‚¬ìš©í•˜ê±°ë‚˜ ì‚¬ìš©í•˜ì§€ ì•Šë„ë¡ ì§€ì •
 	USART_Init(USART2, &USART_InitStructure);
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // RX(¼ö½ÅºÎºĞ)¿¡ ´ëÇÏ¿© Interrupt Ã³¸® °¡´É
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE); // RX(ìˆ˜ì‹ ë¶€ë¶„)ì— ëŒ€í•˜ì—¬ Interrupt ì²˜ë¦¬ ê°€ëŠ¥
 }
 
-void TIM2_Configure(void) {
- TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
- 
- // ´ÜÀ§¸¦ 1us·Î ÁöÁ¤, 72/72MHz=1us 
- TIM_TimeBaseInitStructure.TIM_Prescaler = 1;
- TIM_TimeBaseInitStructure.TIM_Period = 72;
- TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Down; // CounterMode Up/Down »ó°ü ¾ø³ª? 
- TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
- TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
- 
- TIM_ARRPreloadConfig(TIM2, ENABLE); // ?
- TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
- TIM_Cmd(TIM2, ENABLE);
-}
-void TIM2_IRQHandler(void) {
- // Á¶°ÇÀÌ ÃæÁ·µÇ´Â µ¿¾ÈÀ» ÀÇ¹Ì
- if(TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) { 
- 	usTime++; 
- 	if(is_dangerous) {
-		if(usTime)
-	}
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
- }
-}
-
-void TIM3_Configure(void){
+void TIM2_Configure(void)
+{
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
-	
-	// ÇÑ ÁÖ±â¸¦ 20ms·Î ¼³Á¤ÇÔ 
-	TIM_TimeBaseInitStructure.TIM_Period=20000;
-	TIM_TimeBaseInitStructure.TIM_Prescaler=72;
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Down;
-	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1; // TIM_CKD_DIV1=0
-	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStructure);
-	
+
+	// ë‹¨ìœ„ë¥¼ 1usë¡œ ì§€ì •, 72/72MHz=1us
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 1;
+	TIM_TimeBaseInitStructure.TIM_Period = 72;
+	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Down; // CounterMode Up/Down ìƒê´€ ì—†ë‚˜?
+	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
+
+	TIM_ARRPreloadConfig(TIM2, ENABLE); // ?
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
+}
+void TIM2_IRQHandler(void)
+{
+	// ì¡°ê±´ì´ ì¶©ì¡±ë˜ëŠ” ë™ì•ˆì„ ì˜ë¯¸
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+	{
+		usTime++;
+		if (is_dangerous)
+		{
+			if (usTime)
+		}
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	}
+}
+
+void TIM3_Configure(void)
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+
+	// í•œ ì£¼ê¸°ë¥¼ 20msë¡œ ì„¤ì •í•¨
+	TIM_TimeBaseInitStructure.TIM_Period = 20000;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 72;
+	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Down;
+	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1; // TIM_CKD_DIV1=0
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStructure);
+
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = 2000; // Duty Cycle = 2000/20000 = 10%
- 	TIM_ARRPreloadConfig(TIM3, ENABLE);
+	TIM_ARRPreloadConfig(TIM3, ENABLE);
 	TIM_Cmd(TIM3, ENABLE);
-	
+
 	TIM_OC1Init(TIM3, &TIM_OCInitStructure);
- 	TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
-	
+	TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
+
 	TIM_OC2Init(TIM3, &TIM_OCInitStructure);
- 	TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Disable);
-	
+	TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Disable);
+
 	TIM_OC3Init(TIM3, &TIM_OCInitStructure);
- 	TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Disable);
-	
+	TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Disable);
+
 	TIM_OC4Init(TIM3, &TIM_OCInitStructure);
- 	TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Disable);
+	TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Disable);
 }
-void TIM4_Configure(void){
-	
+void TIM4_Configure(void)
+{
+
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
-	
-	// ÇÑ ÁÖ±â¸¦ 20ms·Î ¼³Á¤ÇÔ 
-	TIM_TimeBaseInitStructure.TIM_Period=20000;
-	TIM_TimeBaseInitStructure.TIM_Prescaler=72;
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Down;
-	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1; // TIM_CKD_DIV1=0
-	TIM_TimeBaseInit(TIM4,&TIM_TimeBaseInitStructure);
-	
+
+	// í•œ ì£¼ê¸°ë¥¼ 20msë¡œ ì„¤ì •í•¨
+	TIM_TimeBaseInitStructure.TIM_Period = 20000;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 72;
+	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Down;
+	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1; // TIM_CKD_DIV1=0
+	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure);
+
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = 2000; // Duty Cycle = 2000/20000 = 10%
- 	TIM_ARRPreloadConfig(TIM4, ENABLE);
+	TIM_ARRPreloadConfig(TIM4, ENABLE);
 	TIM_Cmd(TIM4, ENABLE);
-	
+
 	TIM_OC1Init(TIM4, &TIM_OCInitStructure);
- 	TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Disable);
-	
+	TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Disable);
+
 	TIM_OC2Init(TIM4, &TIM_OCInitStructure);
- 	TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Disable);
-	
+	TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Disable);
+
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
- 	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Disable);
-	
+	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Disable);
+
 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
- 	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Disable);
+	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Disable);
 }
-void PWM_Change(int timerNum, int timerChannel, float dutyCycle){
-	int new_pulse=25000*dutyCycle;
-	switch(timerNum){
+void PWM_Change(int timerNum, int timerChannel, float dutyCycle)
+{
+	int new_pulse = 25000 * dutyCycle;
+	switch (timerNum)
+	{
+	case 3:
+		switch (timerChannel)
+		{
+		case 1:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+			break;
+		case 2:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC2Init(TIM3, &TIM_OCInitStructure);
+			break;
 		case 3:
-			switch(timerChannel){
-				case 1:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC1Init(TIM3,&TIM_OCInitStructure);
-					break;
-				case 2:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC2Init(TIM3,&TIM_OCInitStructure);
-					break;
-				case 3:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC3Init(TIM3,&TIM_OCInitStructure);
-					break;
-				case 4:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC4Init(TIM3,&TIM_OCInitStructure);
-				default:
-					break;
-			}
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC3Init(TIM3, &TIM_OCInitStructure);
+			break;
 		case 4:
-			switch(timerChannel){
-				case 1:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC1Init(TIM4,&TIM_OCInitStructure);
-					break;
-				case 2:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC2Init(TIM4,&TIM_OCInitStructure);
-					break;
-				case 3:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC3Init(TIM4,&TIM_OCInitStructure);
-					break;
-				case 4:
-					TIM_OCInitStructure.TIM_Pulse=new_pulse;
-					TIM_OC4Init(TIM4,&TIM_OCInitStructure);
-				default:
-					break;
-			}
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+		default:
+			break;
+		}
+	case 4:
+		switch (timerChannel)
+		{
+		case 1:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+			break;
+		case 2:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC2Init(TIM4, &TIM_OCInitStructure);
+			break;
+		case 3:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+			break;
+		case 4:
+			TIM_OCInitStructure.TIM_Pulse = new_pulse;
+			TIM_OC4Init(TIM4, &TIM_OCInitStructure);
+		default:
+			break;
+		}
 	}
 }
 
-// ÃÊÀ½ÆÄ ¼¾¼­°ªÀ» ¹Ş±â À§ÇØ ¼³Á¤ 
-void ADC_Configure(){ 
- ADC_InitTypeDef ADC_Initstruct;
- ADC_Initstruct.ADC_Mode = ADC_Mode_Independent;
- ADC_Initstruct.ADC_ScanConvMode = DISABLE;
- ADC_Initstruct.ADC_ContinuousConvMode = ENABLE;
- ADC_Initstruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
- ADC_Initstruct.ADC_DataAlign = ADC_DataAlign_Right;
- ADC_Initstruct.ADC_NbrOfChannel = 1;
- ADC_Init(ADC1, &ADC_Initstruct);
- 
- ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_239Cycles5);
- ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
- ADC_Cmd(ADC1, ENABLE);
- ADC_ResetCalibration(ADC1);
- while (ADC_GetResetCalibrationStatus(ADC1));
- ADC_StartCalibration(ADC1);
- while (ADC_GetCalibrationStatus(ADC1));
- ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+// ì´ˆìŒíŒŒ ì„¼ì„œê°’ì„ ë°›ê¸° ìœ„í•´ ì„¤ì •
+void ADC_Configure()
+{
+	ADC_InitTypeDef ADC_Initstruct;
+	ADC_Initstruct.ADC_Mode = ADC_Mode_Independent;
+	ADC_Initstruct.ADC_ScanConvMode = DISABLE;
+	ADC_Initstruct.ADC_ContinuousConvMode = ENABLE;
+	ADC_Initstruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_Initstruct.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_Initstruct.ADC_NbrOfChannel = 1;
+	ADC_Init(ADC1, &ADC_Initstruct);
+
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_239Cycles5);
+	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	ADC_Cmd(ADC1, ENABLE);
+	ADC_ResetCalibration(ADC1);
+	while (ADC_GetResetCalibrationStatus(ADC1))
+		;
+	ADC_StartCalibration(ADC1);
+	while (ADC_GetCalibrationStatus(ADC1))
+		;
+	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 }
-// ºí·çÅõ½º¿Í Á¶ÀÌ½ºÆ½ °ü·Ã Á¦¾î - ÃßÈÄ Ãß°¡ ¿¹Á¤ 
-void EXTI_Configure() {
-// ±âº»ÀûÀÎ ÀÚµ¿ÁÖÂ÷ ±â´ÉÀ» ´Ù ±¸ÇöÇÑ ´ÙÀ½¿¡ Á¶ÀÌ½ºÆ½, ¹öÆ°ÀÌ³ª ºí·çÅõ½º È­¸éÀ¸·Î »ç¿ëÀÚ°¡ ¼öµ¿À¸·Î ÀÚµ¿Â÷¸¦ ¿òÁ÷ÀÏ ¼ö ÀÖ°Ô ÇÔ
+// ë¸”ë£¨íˆ¬ìŠ¤ì™€ ì¡°ì´ìŠ¤í‹± ê´€ë ¨ ì œì–´ - ì¶”í›„ ì¶”ê°€ ì˜ˆì •
+void EXTI_Configure()
+{
+	// ê¸°ë³¸ì ì¸ ìë™ì£¼ì°¨ ê¸°ëŠ¥ì„ ë‹¤ êµ¬í˜„í•œ ë‹¤ìŒì— ì¡°ì´ìŠ¤í‹±, ë²„íŠ¼ì´ë‚˜ ë¸”ë£¨íˆ¬ìŠ¤ í™”ë©´ìœ¼ë¡œ ì‚¬ìš©ìê°€ ìˆ˜ë™ìœ¼ë¡œ ìë™ì°¨ë¥¼ ì›€ì§ì¼ ìˆ˜ ìˆê²Œ í•¨
 	EXTI_InitTypeDef EXTI_InitStructure;
-	 
-	 /*
-	 
-	 // EXTI´Â EXTI_Line2 | EXTI_Line3 | EXTI_Line4 | EXTI_Line5 ÀÌ·¸°Ô ¾È µÊ?
-	 // ÇØº¸°í µÇ¸é ¤¡¤¡ 
-	  
-	// DOWN (PD2)
-	EXTI_InitStructure.EXTI_Line = EXTI_Line2;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_Init(&EXTI_InitStructure);
-	// LEFT (PD3), USART2 PX (PA3)
-	EXTI_InitStructure.EXTI_Line = EXTI_Line3;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_Init(&EXTI_InitStructure);
-	// RIGHT (PD4)
-	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_Init(&EXTI_InitStructure);
-	// UP (PD5)
-	EXTI_InitStructure.EXTI_Line = EXTI_Line5;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_Init(&EXTI_InitStructure);
-	// S1 Button (PD11)
-	EXTI_InitStructure.EXTI_Line = EXTI_Line11;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_Init(&EXTI_InitStructure);
-	// USART1 RX (PA10)
-	//EXTI_InitStructure.EXTI_Line = EXTI_Line10;
-	//EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	//EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	//EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-	//EXTI_Init(&EXTI_InitStructure);*/
-	
+
+	/*
+    
+    // EXTIëŠ” EXTI_Line2 | EXTI_Line3 | EXTI_Line4 | EXTI_Line5 ì´ë ‡ê²Œ ì•ˆ ë¨?
+    // í•´ë³´ê³  ë˜ë©´ ã„±ã„± 
+     
+   // DOWN (PD2)
+   EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   EXTI_Init(&EXTI_InitStructure);
+   // LEFT (PD3), USART2 PX (PA3)
+   EXTI_InitStructure.EXTI_Line = EXTI_Line3;
+   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   EXTI_Init(&EXTI_InitStructure);
+   // RIGHT (PD4)
+   EXTI_InitStructure.EXTI_Line = EXTI_Line4;
+   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   EXTI_Init(&EXTI_InitStructure);
+   // UP (PD5)
+   EXTI_InitStructure.EXTI_Line = EXTI_Line5;
+   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   EXTI_Init(&EXTI_InitStructure);
+   // S1 Button (PD11)
+   EXTI_InitStructure.EXTI_Line = EXTI_Line11;
+   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   EXTI_Init(&EXTI_InitStructure);
+   // USART1 RX (PA10)
+   //EXTI_InitStructure.EXTI_Line = EXTI_Line10;
+   //EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+   //EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+   //EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+   //EXTI_Init(&EXTI_InitStructure);*/
+
 	// Line-Tracing Sensors, 14:Left, 15:Right
 	EXTI_InitStructure.EXTI_Line = EXTI_Line14;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
@@ -308,263 +329,304 @@ void EXTI_Configure() {
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_Init(&EXTI_InitStructure);
 }
-void EXTI15_10_IRQHandler() {
-	 /*if (EXTI_GetITStatus(EXTI_Line10) != RESET) {
-		 input_char = USART_ReceiveData(USART1);
-		 input_num = 10;
-		 EXTI_ClearITPendingBit(EXTI_Line10);
-	 }
-	 if (EXTI_GetITStatus(EXTI_Line11) != RESET) { // user button interupt
-		 input_num = 11;
-		 EXTI_ClearITPendingBit(EXTI_Line11);
-	 }*/
-	 if(EXTI_GetITStatus(EXTI_Line14)!=RESET){
-	 	
-	 }
-}
-void EXTI2_IRQHandler() {
-	 if (EXTI_GetITStatus(EXTI_Line2) != RESET) { // joystick down interupt
-		 input_num = 2;
-		 EXTI_ClearITPendingBit(EXTI_Line2);
-	 }
-}
-void EXTI3_IRQHandler() {
-	 if (EXTI_GetITStatus(EXTI_Line3) != RESET) { // joystick left interupt
-		 input_num = 3;
-		 EXTI_ClearITPendingBit(EXTI_Line3);
-	 }
-}
-void EXTI4_IRQHandler() {
-	 if (EXTI_GetITStatus(EXTI_Line4) != RESET) { // joystick right interupt
-		 input_num = 4;
-		 EXTI_ClearITPendingBit(EXTI_Line4);
-	 }
+void EXTI15_10_IRQHandler()
+{
+	/*if (EXTI_GetITStatus(EXTI_Line10) != RESET) {
+       input_char = USART_ReceiveData(USART1);
+       input_num = 10;
+       EXTI_ClearITPendingBit(EXTI_Line10);
+    }
+    if (EXTI_GetITStatus(EXTI_Line11) != RESET) { // user button interupt
+       input_num = 11;
+       EXTI_ClearITPendingBit(EXTI_Line11);
+    }*/
+	if (EXTI_GetITStatus(EXTI_Line14) != RESET)
+	{
 	}
-void EXTI9_5_IRQHandler() {
-	 if (EXTI_GetITStatus(EXTI_Line5) != RESET) { // joystick up interupt
-		 input_num = 5;
-		 EXTI_ClearITPendingBit(EXTI_Line5);
-	 }*/
 }
-// ÀÌÈÄ ¼öÁ¤ ¿¹Á¤ 
-void NVIC_Configure() {
-	 // µÎ °³ÀÇ ¿ì¼±¼øÀ§°¡ ¸ğµÎ °°À¸¸é ¿ì¼±¼øÀ§ ¾øÀÌ ¼ø¼­´ë·Î Ã³¸® 
-	 // ¹öÆ° > USART2, TIM2 > Á¶ÀÌ½ºÆ½ 
-	 NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	 NVIC_InitTypeDef NVIC_InitStructure;
-	 
-     // USART2
-     NVIC_EnableIRQ(USART2_IRQn);
-     NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
-     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
-     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-     NVIC_Init(&NVIC_InitStructure);
+void EXTI2_IRQHandler()
+{
+	if (EXTI_GetITStatus(EXTI_Line2) != RESET)
+	{ // joystick down interupt
+		input_num = 2;
+		EXTI_ClearITPendingBit(EXTI_Line2);
+	}
+}
+void EXTI3_IRQHandler()
+{
+	if (EXTI_GetITStatus(EXTI_Line3) != RESET)
+	{ // joystick left interupt
+		input_num = 3;
+		EXTI_ClearITPendingBit(EXTI_Line3);
+	}
+}
+void EXTI4_IRQHandler()
+{
+	if (EXTI_GetITStatus(EXTI_Line4) != RESET)
+	{ // joystick right interupt
+		input_num = 4;
+		EXTI_ClearITPendingBit(EXTI_Line4);
+	}
+}
+void EXTI9_5_IRQHandler()
+{
+	if (EXTI_GetITStatus(EXTI_Line5) != RESET)
+	{ // joystick up interupt
+		input_num = 5;
+		EXTI_ClearITPendingBit(EXTI_Line5);
+	}
+	* /
+}
+// ì´í›„ ìˆ˜ì • ì˜ˆì •
+void NVIC_Configure()
+{
+	// ë‘ ê°œì˜ ìš°ì„ ìˆœìœ„ê°€ ëª¨ë‘ ê°™ìœ¼ë©´ ìš°ì„ ìˆœìœ„ ì—†ì´ ìˆœì„œëŒ€ë¡œ ì²˜ë¦¬
+	// ë²„íŠ¼ > USART2, TIM2 > ì¡°ì´ìŠ¤í‹±
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_InitTypeDef NVIC_InitStructure;
 
-     // TIMER2, ³ôÀº ¿ì¼±¼øÀ§ 
-     NVIC_EnableIRQ(TIM2_IRQn);
-     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
-     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-     NVIC_Init(&NVIC_InitStructure);
+	// USART2
+	NVIC_EnableIRQ(USART2_IRQn);
+	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
-	 // ¹öÆ°°ú Á¶ÀÌ½ºÆ½
-	 NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn; //Button
-	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-	 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
-	 NVIC_Init(&NVIC_InitStructure);
+	// TIMER2, ë†’ì€ ìš°ì„ ìˆœìœ„
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
-	 NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn; // Joystick-Up
-	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
-	 NVIC_Init(&NVIC_InitStructure);
+	// ë²„íŠ¼ê³¼ ì¡°ì´ìŠ¤í‹±
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn; //Button
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_Init(&NVIC_InitStructure);
 
-	 NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn; //Joystick-Down
-	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
-	 NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn; // Joystick-Up
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+	NVIC_Init(&NVIC_InitStructure);
 
-	 NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn; //Joystick-Right
-	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
-	 NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn; //Joystick-Down
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_Init(&NVIC_InitStructure);
 
-	 NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn; //Joystick-Left
-	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
-	 NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn; //Joystick-Right
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
+	NVIC_Init(&NVIC_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn; //Joystick-Left
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
+	NVIC_Init(&NVIC_InitStructure);
 }
 
 // Car Operation =====================================================
 
-// ÀÚµ¿Â÷ µ¿ÀÛ 
-void Motor_Stop(){
-	PWM_Change(3,1,0);
-	PWM_Change(3,2,0);
-	PWM_Change(3,3,0);
-	PWM_Change(3,4,0);
-	PWM_Change(4,1,0);
-	PWM_Change(4,2,0);
-	PWM_Change(4,3,0);
-	PWM_Change(4,4,0);
+// ìë™ì°¨ ë™ì‘
+void Motor_Stop()
+{
+	PWM_Change(3, 1, 0);
+	PWM_Change(3, 2, 0);
+	PWM_Change(3, 3, 0);
+	PWM_Change(3, 4, 0);
+	PWM_Change(4, 1, 0);
+	PWM_Change(4, 2, 0);
+	PWM_Change(4, 3, 0);
+	PWM_Change(4, 4, 0);
 }
-void Motor_Forward(){
-	PWM_Change(3,1,SPEED_RATIO);
-	PWM_Change(3,2,0);
-	PWM_Change(3,3,SPEED_RATIO);
-	PWM_Change(3,4,0);
-	PWM_Change(4,1,SPEED_RATIO);
-	PWM_Change(4,2,0);
-	PWM_Change(4,3,SPEED_RATIO);
-	PWM_Change(4,4,0);
+void Motor_Forward()
+{
+	PWM_Change(3, 1, SPEED_RATIO);
+	PWM_Change(3, 2, 0);
+	PWM_Change(3, 3, SPEED_RATIO);
+	PWM_Change(3, 4, 0);
+	PWM_Change(4, 1, SPEED_RATIO);
+	PWM_Change(4, 2, 0);
+	PWM_Change(4, 3, SPEED_RATIO);
+	PWM_Change(4, 4, 0);
 }
-void Motor_Forward_Left(){
-	PWM_Change(3,1,0);
-	PWM_Change(3,2,SPEED_RATIO);
-	PWM_Change(3,3,SPEED_RATIO);
-	PWM_Change(3,4,0);
-	PWM_Change(4,1,SPEED_RATIO);
-	PWM_Change(4,2,0);
-	PWM_Change(4,3,SPEED_RATIO);
-	PWM_Change(4,4,0);
+void Motor_Forward_Left()
+{
+	PWM_Change(3, 1, 0);
+	PWM_Change(3, 2, SPEED_RATIO);
+	PWM_Change(3, 3, SPEED_RATIO);
+	PWM_Change(3, 4, 0);
+	PWM_Change(4, 1, SPEED_RATIO);
+	PWM_Change(4, 2, 0);
+	PWM_Change(4, 3, SPEED_RATIO);
+	PWM_Change(4, 4, 0);
 }
-void Motor_Forward_Right(){
-	PWM_Change(3,1,SPEED_RATIO);
-	PWM_Change(3,2,0);
-	PWM_Change(3,3,0);
-	PWM_Change(3,4,SPEED_RATIO);
-	PWM_Change(4,1,SPEED_RATIO);
-	PWM_Change(4,2,0);
-	PWM_Change(4,3,SPEED_RATIO);
-	PWM_Change(4,4,0);
+void Motor_Forward_Right()
+{
+	PWM_Change(3, 1, SPEED_RATIO);
+	PWM_Change(3, 2, 0);
+	PWM_Change(3, 3, 0);
+	PWM_Change(3, 4, SPEED_RATIO);
+	PWM_Change(4, 1, SPEED_RATIO);
+	PWM_Change(4, 2, 0);
+	PWM_Change(4, 3, SPEED_RATIO);
+	PWM_Change(4, 4, 0);
 }
-void Motor_Backward(){
-	PWM_Change(3,1,0);
-	PWM_Change(3,2,SPEED_RATIO);
-	PWM_Change(3,3,0);
-	PWM_Change(3,4,SPEED_RATIO);
-	PWM_Change(4,1,0);
-	PWM_Change(4,2,SPEED_RATIO);
-	PWM_Change(4,3,0);
-	PWM_Change(4,4,SPEED_RATIO);
-} 
-void Motor_Backward_Left(){
-	PWM_Change(3,1,0);
-	PWM_Change(3,2,SPEED_RATIO);
-	PWM_Change(3,3,SPEED_RATIO);
-	PWM_Change(3,4,0);
-	PWM_Change(4,1,0);
-	PWM_Change(4,2,SPEED_RATIO);
-	PWM_Change(4,3,0);
-	PWM_Change(4,4,SPEED_RATIO);
+void Motor_Backward()
+{
+	PWM_Change(3, 1, 0);
+	PWM_Change(3, 2, SPEED_RATIO);
+	PWM_Change(3, 3, 0);
+	PWM_Change(3, 4, SPEED_RATIO);
+	PWM_Change(4, 1, 0);
+	PWM_Change(4, 2, SPEED_RATIO);
+	PWM_Change(4, 3, 0);
+	PWM_Change(4, 4, SPEED_RATIO);
 }
-void Motor_Backward_Right(){
-	PWM_Change(3,1,SPEED_RATIO);
-	PWM_Change(3,2,0);
-	PWM_Change(3,3,0);
-	PWM_Change(3,4,SPEED_RATIO);
-	PWM_Change(4,1,0);
-	PWM_Change(4,2,SPEED_RATIO);
-	PWM_Change(4,3,0);
-	PWM_Change(4,4,SPEED_RATIO);
+void Motor_Backward_Left()
+{
+	PWM_Change(3, 1, 0);
+	PWM_Change(3, 2, SPEED_RATIO);
+	PWM_Change(3, 3, SPEED_RATIO);
+	PWM_Change(3, 4, 0);
+	PWM_Change(4, 1, 0);
+	PWM_Change(4, 2, SPEED_RATIO);
+	PWM_Change(4, 3, 0);
+	PWM_Change(4, 4, SPEED_RATIO);
+}
+void Motor_Backward_Right()
+{
+	PWM_Change(3, 1, SPEED_RATIO);
+	PWM_Change(3, 2, 0);
+	PWM_Change(3, 3, 0);
+	PWM_Change(3, 4, SPEED_RATIO);
+	PWM_Change(4, 1, 0);
+	PWM_Change(4, 2, SPEED_RATIO);
+	PWM_Change(4, 3, 0);
+	PWM_Change(4, 4, SPEED_RATIO);
 }
 
-// ÃÊÀ½ÆÄ ¼¾¼­¸¦ ÀÌ¿ëÇØ¼­ °Å¸® ÃøÁ¤ 
-// GPIOE·Î °íÁ¤ÇØ³ù±â ¶§¹®¿¡ ¸Å°³º¯¼ö·Î trig, echo ÇÉ ¹øÈ£¸¸ ³Ö¾îÁØ´Ù. 
-float Read_Distance(uint16_t trig, uint16_t echo){
-    uint32_t prev = 0;
-    GPIO_SetBits(GPIOE, trig;
+// ì´ˆìŒíŒŒ ì„¼ì„œë¥¼ ì´ìš©í•´ì„œ ê±°ë¦¬ ì¸¡ì •
+// GPIOEë¡œ ê³ ì •í•´ë†¨ê¸° ë•Œë¬¸ì— ë§¤ê°œë³€ìˆ˜ë¡œ trig, echo í•€ ë²ˆí˜¸ë§Œ ë„£ì–´ì¤€ë‹¤.
+float Read_Distance(uint16_t trig, uint16_t echo)
+{
+	uint32_t prev = 0;
+	GPIO_SetBits(GPIOE, trig;
     GPIO_ResetBits(GPIOE, echo);
     Delay(10);
     GPIO_ResetBits(GPIOE, echo);
     //uint8_t val = GPIO_ReadInputDataBit(GPIOE, echo);
 
-    /* ¹ö½ºÆ® ¹ß»ı Á÷ÈÄ ¿¡ÄÚ´Â HIGH ·¹º§À» °¡Áø´Ù.
-    µû¶ó¼­ ¹ö½ºÆ®°¡ ¹ß»ıÇß´ÂÁö ¾Ë±â À§ÇØ while¹®À» ÅëÇØ
-    ¿¡ÄÚ°¡ LOW ·¹º§(RESET)À» °¡Áú ¶§(¹ö½ºÆ® ¹ß»ı X)´Â ¹İº¹¹®¿¡ ¸Ó¹°°Ô ÇÏ°í 
-    ¿¡ÄÚ°¡ HIGH ·¹º§(SET)À» °¡Áú ¶§(¹ö½ºÆ® ¹ß»ı)´Â ¹İº¹¹®À» Å»ÃâÇÑ´Ù.*/  
+    /* ë²„ìŠ¤íŠ¸ ë°œìƒ ì§í›„ ì—ì½”ëŠ” HIGH ë ˆë²¨ì„ ê°€ì§„ë‹¤.
+    ë”°ë¼ì„œ ë²„ìŠ¤íŠ¸ê°€ ë°œìƒí–ˆëŠ”ì§€ ì•Œê¸° ìœ„í•´ whileë¬¸ì„ í†µí•´
+    ì—ì½”ê°€ LOW ë ˆë²¨(RESET)ì„ ê°€ì§ˆ ë•Œ(ë²„ìŠ¤íŠ¸ ë°œìƒ X)ëŠ” ë°˜ë³µë¬¸ì— ë¨¸ë¬¼ê²Œ í•˜ê³  
+    ì—ì½”ê°€ HIGH ë ˆë²¨(SET)ì„ ê°€ì§ˆ ë•Œ(ë²„ìŠ¤íŠ¸ ë°œìƒ)ëŠ” ë°˜ë³µë¬¸ì„ íƒˆì¶œí•œë‹¤.*/  
     while(GPIO_ReadInputDataBit(GPIOE, echo) == RESET);
     
-    // ¹İº¹¹®À» Å»ÃâÇÑ ÀÌÈÄ¿£ ½Ã°£ ÃøÁ¤À» À§ÇØ prev º¯¼ö¿¡ ÇöÀç ½Ã°¢À» ÀúÀåÇÑ´Ù.
+    // ë°˜ë³µë¬¸ì„ íƒˆì¶œí•œ ì´í›„ì—” ì‹œê°„ ì¸¡ì •ì„ ìœ„í•´ prev ë³€ìˆ˜ì— í˜„ì¬ ì‹œê°ì„ ì €ì¥í•œë‹¤.
     prev = usTime; 
     
-    /* ¿¡ÄÚ¿¡ ¹ö½ºÆ®°¡ ´Ù½Ã µé¾î¿À¸é ¿¡ÄÚ´Â LOW ·¹º§À» °¡Áø´Ù.
-    µû¶ó¼­ ¿¡ÄÚ°¡ HIGH ·¹º§(SET)ÀÏ µ¿¾ÈÀº ¾ÆÁ÷ ¹ö½ºÆ®°¡ µ¹¾Æ ¿ÀÁö ¾ÊÀº °Å´Ï±î
-    ¹İº¹¹®¿¡ ¸Ó¹°°Ô ÇÏ°í ¿¡ÄÚ°¡ LOW ·¹º§À» °¡Á³À» ¶© ¹ö½ºÆ®°¡ µé¾î¿Ô´Ù´Â
-    ÀÇ¹Ì´Ï±î ¹İº¹¹®À» Å»ÃâÇØ °Å¸®¸¦ °è»êÇÑ´Ù.*/ 
+    /* ì—ì½”ì— ë²„ìŠ¤íŠ¸ê°€ ë‹¤ì‹œ ë“¤ì–´ì˜¤ë©´ ì—ì½”ëŠ” LOW ë ˆë²¨ì„ ê°€ì§„ë‹¤.
+    ë”°ë¼ì„œ ì—ì½”ê°€ HIGH ë ˆë²¨(SET)ì¼ ë™ì•ˆì€ ì•„ì§ ë²„ìŠ¤íŠ¸ê°€ ëŒì•„ ì˜¤ì§€ ì•Šì€ ê±°ë‹ˆê¹Œ
+    ë°˜ë³µë¬¸ì— ë¨¸ë¬¼ê²Œ í•˜ê³  ì—ì½”ê°€ LOW ë ˆë²¨ì„ ê°€ì¡Œì„ ë• ë²„ìŠ¤íŠ¸ê°€ ë“¤ì–´ì™”ë‹¤ëŠ”
+    ì˜ë¯¸ë‹ˆê¹Œ ë°˜ë³µë¬¸ì„ íƒˆì¶œí•´ ê±°ë¦¬ë¥¼ ê³„ì‚°í•œë‹¤.*/ 
     while(GPIO_ReadInputDataBit(GPIOE, echo) != RESET);
 
-    // °Å¸®´Â (¹ö½ºÆ® ¿Õº¹°Å¸®) / 2 / 0.034cm/us ·Î ±¸ÇØÁø´Ù.
+    // ê±°ë¦¬ëŠ” (ë²„ìŠ¤íŠ¸ ì™•ë³µê±°ë¦¬) / 2 / 0.034cm/us ë¡œ êµ¬í•´ì§„ë‹¤.
     float distance = (usTime - prev)*34/1000;
 
     return distance;
 }
-void Close_Or_Not(){
-	// ±âÁØ °Å¸®º¸´Ù °¡±î¿îÁö ¿©ºÎ¿¡ µû¶ó curr Çà·ÄÀÇ ÇØ´ç ºÎºĞ¿¡ 1°ú 0À» ³Ö¾îÁØ´Ù. 
-	for(int i=0;i<6;i++){
-		Ultrasonic_distance=Read_Distance(Ultrasonic_pin[2*i],Ultrasonic_pin[2*i+1]);
-		if (Ultrasonic_distance<DISTANCE){Ultrasonic_curr[i]=0;} 
-		else {Ultrasonic_curr[i]=1;}
+void Close_Or_Not()
+{
+	// ê¸°ì¤€ ê±°ë¦¬ë³´ë‹¤ ê°€ê¹Œìš´ì§€ ì—¬ë¶€ì— ë”°ë¼ curr í–‰ë ¬ì˜ í•´ë‹¹ ë¶€ë¶„ì— 1ê³¼ 0ì„ ë„£ì–´ì¤€ë‹¤.
+	for (int i = 0; i < 6; i++)
+	{
+		Ultrasonic_distance = Read_Distance(Ultrasonic_pin[2 * i], Ultrasonic_pin[2 * i + 1]);
+		if (Ultrasonic_distance < DISTANCE)
+		{
+			Ultrasonic_curr[i] = 0;
+		}
+		else
+		{
+			Ultrasonic_curr[i] = 1;
+		}
 	}
-	// ±âÁØ °Å¸®º¸´Ù °¡±î¿î ºÎºĞÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é is_dangerous º¯¼ö¸¦ 1·Î ¸¸µé°í,
-	// prev Çà·Ä¿¡ curr Çà·ÄÀÇ °ªÀ» ÀúÀåÇÑ´Ù. ÀÌÈÄ »óÅÂ°¡ ÇØ°áµÇ¸é 0À¸·Î ÃÊ±âÈ­ÇÑ´Ù. 
-	for(int i=0;i<6;i++){
-		if(Ultrasonic_curr[i]==1){
-			is_dangerous=1;
-			for(int j=0;j<6;j++){Ultrasonic_prev[i]=Ultrasonic_curr[i];}
+	// ê¸°ì¤€ ê±°ë¦¬ë³´ë‹¤ ê°€ê¹Œìš´ ë¶€ë¶„ì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ is_dangerous ë³€ìˆ˜ë¥¼ 1ë¡œ ë§Œë“¤ê³ ,
+	// prev í–‰ë ¬ì— curr í–‰ë ¬ì˜ ê°’ì„ ì €ì¥í•œë‹¤. ì´í›„ ìƒíƒœê°€ í•´ê²°ë˜ë©´ 0ìœ¼ë¡œ ì´ˆê¸°í™”í•œë‹¤.
+	for (int i = 0; i < 6; i++)
+	{
+		if (Ultrasonic_curr[i] == 1)
+		{
+			is_dangerous = 1;
+			for (int j = 0; j < 6; j++)
+			{
+				Ultrasonic_prev[i] = Ultrasonic_curr[i];
+			}
 			break;
 		}
 	}
-	else{is_dangerous=0;}
+	else { is_dangerous = 0; }
 }
 
-// ¶óÀÎ Æ®·¹ÀÌ½Ì ¼¾¼­°ª ¹Ş°í, ¼± À§¿¡ ÀÖ´ÂÁö ¿©ºÎ±îÁö È®ÀÎ 
-// Á¶±³´ÔÀÌ ÃÊÀ½ÆÄ¼¾¼­ ADC ÇÚµé·¯¸¦ ¾²Áö ¾ÊÀ¸¼Å¼­ ÃÊÀ½ÆÄ¼¾¼­ ADC ÇÚµé·¯¸¦ ¾²Áö ¾ÊÀ½
-// -> ¶óÀÎ Æ®·¹ÀÌ½Ì ¼¾¼­µµ EXTI ÇÚµé·¯¸¦ ¾²Áö ¾ÊÀ½
-// -> ¹®Á¦°¡ µÇ³ª.. µÇ¸é ÀÌÈÄ¿¡ EXTI·Î ¹Ù²Ù±â 
-void Line_Or_Not(){
-	// ¼± À§¿¡ ÀÖ´ÂÁö ¿©ºÎ¿¡ µû¶ó curr Çà·ÄÀÇ ÇØ´ç ºÎºĞ¿¡ 0°ú 1À» ³Ö¾îÁØ´Ù. 
-	for(int i=0;i<2;i++){
-		if (GPIO_ReadInputDataBit(GPIOE, LT_pin[i])==Bit_SET){
-			// Line Tracing ¼¾¼­´Â Èò»öÀÏ ¶§ 1ÀÌ´Ù.
-			LT_curr[i]=1;
+// ë¼ì¸ íŠ¸ë ˆì´ì‹± ì„¼ì„œê°’ ë°›ê³ , ì„  ìœ„ì— ìˆëŠ”ì§€ ì—¬ë¶€ê¹Œì§€ í™•ì¸
+// ì¡°êµë‹˜ì´ ì´ˆìŒíŒŒì„¼ì„œ ADC í•¸ë“¤ëŸ¬ë¥¼ ì“°ì§€ ì•Šìœ¼ì…”ì„œ ì´ˆìŒíŒŒì„¼ì„œ ADC í•¸ë“¤ëŸ¬ë¥¼ ì“°ì§€ ì•ŠìŒ
+// -> ë¼ì¸ íŠ¸ë ˆì´ì‹± ì„¼ì„œë„ EXTI í•¸ë“¤ëŸ¬ë¥¼ ì“°ì§€ ì•ŠìŒ
+// -> ë¬¸ì œê°€ ë˜ë‚˜.. ë˜ë©´ ì´í›„ì— EXTIë¡œ ë°”ê¾¸ê¸°
+void Line_Or_Not()
+{
+	// ì„  ìœ„ì— ìˆëŠ”ì§€ ì—¬ë¶€ì— ë”°ë¼ curr í–‰ë ¬ì˜ í•´ë‹¹ ë¶€ë¶„ì— 0ê³¼ 1ì„ ë„£ì–´ì¤€ë‹¤.
+	for (int i = 0; i < 2; i++)
+	{
+		if (GPIO_ReadInputDataBit(GPIOE, LT_pin[i]) == Bit_SET)
+		{
+			// Line Tracing ì„¼ì„œëŠ” í°ìƒ‰ì¼ ë•Œ 1ì´ë‹¤.
+			LT_curr[i] = 1;
 		}
-		else{LT_curr[i]=0;}
+		else
+		{
+			LT_curr[i] = 0;
+		}
 	}
-	// ¼± À§¿¡ ÀÖ´Â °ÍÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é is_dangerous º¯¼ö¸¦ 1·Î ¸¸µé°í,
-	// prev Çà·Ä¿¡ curr Çà·ÄÀÇ °ªÀ» ÀúÀåÇÑ´Ù. ÀÌÈÄ »óÅÂ°¡ ÇØ°áµÇ¸é 1·Î ÃÊ±âÈ­µÈ´Ù.
-	for(int i=0;i<2;i++){
-		if(LT_curr[i]==0){
-			is_dangerous=1;
-			for(int j=0;j<2;j++){LT_prev[i]=LT_curr[i];}
+	// ì„  ìœ„ì— ìˆëŠ” ê²ƒì´ í•˜ë‚˜ë¼ë„ ìˆìœ¼ë©´ is_dangerous ë³€ìˆ˜ë¥¼ 1ë¡œ ë§Œë“¤ê³ ,
+	// prev í–‰ë ¬ì— curr í–‰ë ¬ì˜ ê°’ì„ ì €ì¥í•œë‹¤. ì´í›„ ìƒíƒœê°€ í•´ê²°ë˜ë©´ 1ë¡œ ì´ˆê¸°í™”ëœë‹¤.
+	for (int i = 0; i < 2; i++)
+	{
+		if (LT_curr[i] == 0)
+		{
+			is_dangerous = 1;
+			for (int j = 0; j < 2; j++)
+			{
+				LT_prev[i] = LT_curr[i];
+			}
 			break;
 		}
 	}
-	else{is_dangerous=0;}
+	else { is_dangerous = 0; }
 }
-
 
 // Parking Function ==================================================
 
-void Parking(){ // TODO
+void Parking()
+{ // TODO
 	Close_Or_Not();
 	Line_Or_Not();
-	if(is_dangerous==1){
-		motor_state=_MOTOR::Stop;
-		// ÀÌÁ¦ ¾ÈÀüÇÑÁö º¸°í, ¾ÈÀüÇÏ¸é is_dangerous=0À¸·Î ÇÏ°í, ´Ù½Ã µ¿ÀÛ
-		// »óÈ²ÀÌ ÇØ¼ÒµÇÁö ¾ÊÀ¸¸é ÀÚµ¿ÁÖÂ÷ Á¾·á. ¾Æ ±×·¯¸é ÀÚµ¿ÁÖÂ÷µµ ÄÑ°í ²ø ¼ö ÀÖµµ·Ï ÇØ¾ß°Ú´Âµ¥? 
-	} 
-	
+	if (is_dangerous == 1)
+	{
+		motor_state = _MOTOR::Stop;
+		// ì´ì œ ì•ˆì „í•œì§€ ë³´ê³ , ì•ˆì „í•˜ë©´ is_dangerous=0ìœ¼ë¡œ í•˜ê³ , ë‹¤ì‹œ ë™ì‘
+		// ìƒí™©ì´ í•´ì†Œë˜ì§€ ì•Šìœ¼ë©´ ìë™ì£¼ì°¨ ì¢…ë£Œ. ì•„ ê·¸ëŸ¬ë©´ ìë™ì£¼ì°¨ë„ ì¼œê³  ëŒ ìˆ˜ ìˆë„ë¡ í•´ì•¼ê² ëŠ”ë°?
+	}
 
-
-	// Àü¿ªº¯¼ö motor_state¿¡ µû¶ó¼­ Çàµ¿ 
-	// ÃÊÀ½ÆÄ ¼¾¼­°¡ 60ms ±âÁØÀ¸·Î ÃøÁ¤ÇØ¾ßÇÏ±â ¶§¹®¿¡
-	// 60ms ÀÌ»óÀÇ ½Ã°£ µ¿¾ÈÀº motor_state¿¡ µû¶ó Çàµ¿ÇÏµµ·Ï ÇÑ´Ù. 
-} 
-
+	// ì „ì—­ë³€ìˆ˜ motor_stateì— ë”°ë¼ì„œ í–‰ë™
+	// ì´ˆìŒíŒŒ ì„¼ì„œê°€ 60ms ê¸°ì¤€ìœ¼ë¡œ ì¸¡ì •í•´ì•¼í•˜ê¸° ë•Œë¬¸ì—
+	// 60ms ì´ìƒì˜ ì‹œê°„ ë™ì•ˆì€ motor_stateì— ë”°ë¼ í–‰ë™í•˜ë„ë¡ í•œë‹¤.
+}
