@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>도서 등록 페이지</title>
+    <style>
+        #container {
+            padding-left: 20px;
+        }
+        #submitBtn {
+            width: 80px;
+            height: 30px;
+            background-color: #333333;
+            color: #FFFFFF;
+        }
+        #listBtn {
+            width: 80px;
+            height: 30px;
+            background-color: #333333;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+        #category {
+            width: 300px;
+        }
+        input {
+            width: 300px;
+        }
+        label {
+            display: block;
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        function checkInput() {
+            if(document.forms[0].cover.value == '' || document.forms[0].title.value == '' ||
+               document.forms[0].author.value == '' || document.forms[0].publish.value == '' ||
+               document.forms[0].year.value == '' || document.forms[0].month.value == '' ||
+               document.forms[0].page.value == '' || document.forms[0].price.value == '')
+            {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function addBook() {
+            if(checkInput()) {
+                window.alert('필요한 모든 정보를 입력해주시기 바랍니다.')
+                return;
+            }
+
+            if(document.forms[0].year.value < 1990 || document.forms[0].year.value > 2020) {
+                window.alert('1990~2020 사이의 연도를 입력해주시기 바랍니다.')
+                return;
+            }
+
+            if(document.forms[0].month.value < 1 || document.forms[0].month.value > 12) {
+                window.alert('1~12 사이의 월을 입력해주시기 바랍니다.')
+                return;
+            }
+
+            var cover = document.forms[0].cover.value;
+            var title = document.forms[0].title.value;
+            var author = document.forms[0].author.value;
+            var translator = document.forms[0].translator.value;
+            var publish = document.forms[0].publish.value;
+            var selection = document.getElementById('category')
+            var category = selection.options[selection.selectedIndex].value;
+            var year = document.forms[0].year.value;
+            var month = document.forms[0].month.value;
+            var page = document.forms[0].page.value;
+            var price = document.forms[0].price.value;
+
+            fetch("http://localhost:3000/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    cover: cover,
+                    title: title,
+                    author: author,
+                    translator: translator,
+                    publish: publish,
+                    category: category,
+                    year: year,
+                    month: month,
+                    page: page,
+                    price: price
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(myJSON) {
+                window.alert('저장 성공!')
+                document.getElementById('bookForm').reset();
+            }).catch(err => console.log(err))
+        }
+    </script>
+</head>
+<body>  
+    <div id="container">
+        <h1 id="head">도서 등록 페이지</h1>
+        <form name="bookForm" method="post">
+            <!-- 나머지는 모두 입력되어야 함 -->
+            <label>표지: <input type="text" id="cover" required></input></label>
+            <label>제목: <input type="text" id="title" required></input></label>
+            <label>저자: <input type="text" id="author" required></input></label>
+            <!-- 역자 정보는 생략 가능 -->
+            <label>역자: <input type="text" id="translator"></input></label>
+            <label>출판사: <input type="text" id="publish" required></input></label>
+            <!-- <label>분류: <input list="classify" required></input></label>
+            <datalist id="classify">
+                <option value="소설">
+                <option value="인문">
+                <option value="교육">
+                <option value="과학">
+                <option value="공상">
+            </datalist> -->
+            <label>분류: 
+                <select id="category">
+                    <option value="소설">소설</option>
+                    <option value="인문">인문</option>
+                    <option value="교육">교육</option>
+                    <option value="과학">과학</option>
+                    <option value="공상">공상</option>
+                </select>
+            </label>
+            <label>발행 연: <input type="number" id="year" required></input></label>
+            <label>발행 월: <input type="number" id="month" required></input></label>
+            <label>전체 쪽수: <input type="number" id="page" required></input></label>
+            <label>가격 정보: <input type="number" id="price" required></input></label>
+            <input id="submitBtn" type="button" onclick="addBook()" value="도서 등록">
+            <input id="listBtn" type="button" onclick="location.href='booklist.html'" value="도서 목록">
+            <!-- <a id="listBtn" href="booklist.html">도서 목록 확인</a> -->
+        </form>
+    </div>
+    
+</body>
+</html>

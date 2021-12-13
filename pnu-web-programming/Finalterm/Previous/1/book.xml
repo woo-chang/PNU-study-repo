@@ -1,0 +1,22 @@
+<?xml version = "1.0"?>
+<?xml-stylesheet type = "text/xsl" href = "book.xsl"?>
+
+<book isbn = "1">
+    <image>book.jpeg</image>
+
+    <classify>[인문]</classify>
+
+    <title>공정하다는 착각</title>
+
+    <author>마이클 센델 지음</author>
+
+    <translater>함규진 옮김</translater>
+
+    <publish>와이즈베리 펴냄</publish>
+
+    <issued>2020년 12월 출간</issued>
+
+    <page>총 420p</page>
+
+    <price>정가: 18,000원</price>
+</book>

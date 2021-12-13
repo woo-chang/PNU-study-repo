@@ -1,0 +1,20 @@
+<?xml version = "1.0"?>
+<?xml-stylesheet type = "text/xsl" href = "practice.xsl"?>
+<book>
+    <image>http://image.kyobobook.co.kr/images/book/large/922/l9791190030922.jpg</image>
+    <title>소크라테스 익스프레스</title>
+    <author>
+        <firstName>Eric</firstName>
+        <lastName>Weiner</lastName>
+    </author>
+    <translator>
+        <firstName>하현</firstName>
+        <lastName>김</lastName>
+    </translator>
+    <publisher>어크로스</publisher>
+    <classification>인문</classification>
+    <date>November 26, 2021</date>
+    <page>524</page>
+    <cost>16200원</cost>
+
+</book>

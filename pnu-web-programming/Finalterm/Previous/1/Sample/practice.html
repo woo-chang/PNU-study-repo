@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Example</title>
+    <style type="text/css">
+        #linkContainer {
+            display: flex;
+            flex-wrap: wrap;
+            width: 460px;
+        }
+
+        #linkContainer a {
+            display: block;
+            list-style-type: none;
+            text-align: center;
+            font-size: 3em;
+            border: 1px solid;
+            width: 150px;
+            float: left;
+            margin: 1px;
+        }
+
+        #linkContainer img {
+            border: 1px solid;
+            width: 150px;
+            float: left;
+            margin: 1px;
+        }
+
+        #linkContainer div {
+
+            width: 300px;
+            float: right;
+
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .pagination {
+            visibility: hidden;
+            display: inline-block;
+        }
+
+        .pagination div {
+            float: left;
+            padding: 8px 16px;
+        }
+
+        .pagination div.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pagination div:hover:not(.active) {
+            background-color: #ddd;
+        }
+
+        .maindiv {
+            width: 320px;
+            float: left;
+        }
+
+        iframe {
+            width: 500px;
+            height: 500px;
+            float: left;
+        }
+    </style>
+    <script type="text/javascript">
+        var asyncRequest; // variable to hold XMLHttpRequest object
+        function getBook(url) {
+
+            // attempt to create XMLHttpRequest object and make the request
+            try {
+                asyncRequest = new XMLHttpRequest(); // create request object
+
+                // register event handler
+                asyncRequest.addEventListener(
+                    "readystatechange", processResponse, false);
+                asyncRequest.open("GET", url, true); // prepare the request
+                asyncRequest.send(null); // send the request
+            } // end try
+            catch (exception) {
+                alert("Request Failed");
+            } // end catch
+        }
+
+        // parses the XML response; dynamically creates an undordered list and 
+        // populates it with the response data; displays the list on the page
+        function processResponse() {
+            var linkContainer = document.getElementById('linkContainer');
+            // if request completed successfully and responseXML is non-null
+            if (asyncRequest.readyState == 4 && asyncRequest.status == 200 &&
+                asyncRequest.responseXML) {
+                var books = asyncRequest.responseXML.getElementsByTagName("book");
+                var book = books.item(0);
+
+                var title = book.getElementsByTagName("title").
+                    item(0).firstChild.nodeValue;
+
+                var author = book.getElementsByTagName("author").item(0);
+                var firstName = author.getElementsByTagName("firstName").
+                    item(0).firstChild.nodeValue;
+                var lastName = author.getElementsByTagName("lastName").
+                    item(0).firstChild.nodeValue;
+
+                var image = book.getElementsByTagName("image").
+                    item(0).firstChild.nodeValue;
+
+                var imageTag = document.createElement("img");
+                imageTag.setAttribute("src", image);
+                linkContainer.appendChild(imageTag);
+                linkContainer.innerHTML += "<div>" + "<p>" + firstName + ' ' + lastName + "</p>" + "<p>" + title + "</p>" + "</div>";
+                //linkContainer.innerHTML += "<p>" +title + "AA" + "</p>" + "</div>";
+
+                //window.alert(firstName + ' ' + lastName);
+
+            } // end if 
+        } // end function processResponse
+
+        function start() {
+            //window.alert("하허");
+            getBook("practice.xml");
+        }
+    </script>
+</head>
+
+<body onload="start()">
+    <div class="maindiv">
+
+        <div id="linkContainer">
+        </div>
+    </div>
+
+</body>
+
+</html>

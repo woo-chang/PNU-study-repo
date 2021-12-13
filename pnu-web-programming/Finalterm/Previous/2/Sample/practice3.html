@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Example</title>
+    <style type="text/css">
+        #linkContainer {
+            display: flex;
+            flex-wrap: wrap;
+            width: 310px;
+        }
+    
+        #linkContainer a  {
+            display: block;
+            list-style-type: none;
+            text-align: center;
+            font-size: 3em;
+            border: 1px solid;
+            width: 150px;
+            float: left;
+            margin: 1px;
+        }
+
+        #linkContainer{
+            float: right;
+        }
+
+        #bookInfoContainer{
+            display: flex;
+            flex-wrap: wrap;
+            width: 460px;
+        }
+        #bookInfoContainer img{
+            object-fit: cover;
+            border: 1px solid;
+            width: 150px;
+            float: left;
+            margin: 1px;
+        }
+        #bookInfoContainer div{
+            width: 300px;
+            float: right;
+        }
+
+        a   { 
+            text-decoration: none;
+        }
+        .bookMenu {
+            border: 1px solid;
+            font-size: small;
+            
+        }
+        
+        .maindiv {
+            width: 500px;
+            float: left;
+        }
+        .superdiv{
+            display: flex;
+            flex-wrap: wrap;
+            width: 1000px;
+        }
+        iframe {
+            width: 500px;
+            height: 500px;
+            float: left;
+        }
+    </style>
+    <script type="text/javascript">
+        var curPage = 0;
+        var title,author,translator,image,publisher,classification,year,month,page,price;
+
+        function showBooks()
+        {
+            //window.alert("asdasd");
+            var bookContainer = document.getElementById("bookContainer");
+            bookContainer.innerHTML = "";
+            var sortBy = document.getElementById('sortBy');
+            var sortOrder = document.getElementById('sortOrder');
+
+            fetch('/practice2.php',{
+                method:'post',
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify({'func':'showBooks','sortBy':sortBy.options[sortBy.selectedIndex].value,
+                'sortOrder':sortOrder.options[sortOrder.selectedIndex].value}),
+            })
+            .then(res => res.json())
+            .then(json => {
+                for(var i=0; i<json.title.length; i++){
+                    var link = makeMenu(json.title[i],json.author[i],json.classification[i],json.price[i]);
+                    bookContainer.innerHTML += link;
+                }
+                
+            }) 
+        }
+        
+        function addBook()
+        {
+            title = document.getElementById('title');
+            author = document.getElementById('author');
+            translator = document.getElementById('translator');
+            image = document.getElementById('image');
+            publisher = document.getElementById('publisher');
+            classification = document.getElementById('classification');
+            year = document.getElementById('year');
+            month = document.getElementById('month');
+            page = document.getElementById('page');
+            price = document.getElementById('price');
+            if(title.value == '' || author.value == '' ||image.value == '' || publisher.value == '' ||
+            year.value == '' || month.value == '' || page.value == '' ||price.value == ''){
+                window.alert("역자를 제외한 모든 정보를 입력해주세요.");
+                return;
+            }
+            fetch('/practice2.php',{
+                method:'post',
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify({'func':'add', 'title': title.value, 'author': author.value,
+                'translator': translator.value, 'image': image.value,'publisher': publisher.value, 'classification': classification.options[classification.selectedIndex].value,
+                'year': year.value, 'month': month.value,'page': page.value, 'price': price.value
+                }),
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.existFlag == true){
+                    window.alert("이미 있는 책 제목입니다.");
+                }
+                else{
+                    showBooks();
+
+                    title.value = '';
+                    author.value = '';
+                    translator.value = '';
+                    image.value = '';
+                    publisher.value = '';
+                    month.value = '';
+                    year.value = '';
+                    page.value = '';
+                    price.value = '';
+                    //window.alert("데이터베이스에 성공적으로 추가했습니다.");    
+                }
+            });
+            
+        }
+
+
+        
+        function getBookInfo(title){
+            //window.alert(title);
+            var bookInfoContainer = document.getElementById("bookInfoContainer");
+            bookInfoContainer.innerHTML = "";
+            fetch('/practice2.php',{
+                method:'post',
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify({'func':'getBookInfo','title':title}),
+            })
+            .then(res => res.json())
+            .then(json => {
+                //window.alert("asd");
+                var imageTag = document.createElement("img");
+                imageTag.setAttribute("src", json.image);
+                bookInfoContainer.appendChild(imageTag);
+                bookInfoContainer.innerHTML += "<div>" + "<p>" + json.title + "</p>" + "<p>" + json.author + "</p>" +
+                    "<p>" + json.translator + "</p>" + "<p>" + json.publisher + "</p>" +
+                    "<p>" + json.classification + "</p>" + "<p>" + json.year + "</p>" +
+                    "<p>" + json.month + "</p>" + "<p>" + json.page + "</p>" +
+                    "<p>" + json.price + "</p>" + "</div>";
+                
+            })
+        }
+
+        function makeMenu(title, author, classification, price)
+        {
+            /*"<div class=\"bookMenu\" onclick=\"getBookInfo(\"" + title + "\")\">" + "<b>제목</b>: " + title + "&nbsp&nbsp" +
+                "<b>저자</b>: " + author + "&nbsp&nbsp" + 
+                "<b>분류</b>: " + classification + "&nbsp&nbsp" + "<b>가격</b>: " + price + "원" + "</div>";*/
+            return "<div class=\"bookMenu\" onclick=\"getBookInfo(" + "\'" + title + "\'" + ")\">" + "<b>제목</b>: " + title + "&nbsp&nbsp" +
+                "<b>저자</b>: " + author + "&nbsp&nbsp" + 
+                "<b>분류</b>: " + classification + "&nbsp&nbsp" + "<b>가격</b>: " + price + "원" + "</div>"; 
+        }
+
+        
+        
+        function start()
+        {
+            showBooks();
+        }
+    </script>
+    </head>
+<body onload="start()">
+<div class="superdiv">
+    <div class="maindiv">
+        <label>제목: <input type="text" name="title" id="title"></label><br>
+        <label>저자: <input type="text" name="author" id="author"></label><br>
+        <label>역자: <input type="text" name="translator" id="translator"></label><br>
+        <label>표지: <input type="text" name="image" id="image"></label><br>
+        <label>출판사: <input type="text" name="publisher" id="publisher"></label><br>
+        <label>분류: 
+            <select id = "classification" name = "classification">
+                <option value="인문" selected>인문</option>
+                <option value="과학">과학</option>
+                <option value="IT">IT</option>
+                <option value="소설">소설</option>
+                <option value="음악">음악</option>
+            </select>
+        </label><br>
+        <label>발행 연도: <input type="number" name="year" id="year" min=1900 max=2021></label><br>
+        <label>발행 월: <input type="number" name="month" id="month" min=1 max=12></label><br>
+        <label>전체 쪽 수: <input type="number" name="page" id="page"></label><br>
+        <label>가격 정보: <input type="number" name="price" id="price"></label><br>
+        
+        <label> 
+            <select id = "sortBy" name = "sortBy" onchange="showBooks()">
+                <option value="title" selected>제목</option>
+                <option value="author">저자</option>
+                <option value="publisher">출판사</option>
+                <option value="classification">분류</option>
+                <option value="price">가격</option>
+            </select>
+        </label><br>
+        <label>
+            <select id = "sortOrder" name = "sortOrder" onchange="showBooks()">
+                <option value="asc" selected>오름차순</option>
+                <option value="desc">내림차순</option>
+            </select>
+        </label><br>
+        <input type="button" name="addBtn" id="addBtn" value="책 추가" onclick="addBook()">
+        <br>
+    </div>
+
+    <nav id="bookContainer">     
+    </nav>    
+
+    <div id="bookInfoContainer">
+    </div>
+</div>
+</body>
+</html>

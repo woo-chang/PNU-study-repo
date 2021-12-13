@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>도서 목록 페이지</title>
+    <style>
+        table {
+            width: 1000px;
+        }
+        tr {
+            height: 50px;
+        }
+        #sortBtn {
+            width: 60px;
+            height: 30px;
+        }
+    </style>
+    <script>
+        function showList(info='', pivot='') {
+            var table = document.getElementById('myTable')
+            fetch("http://localhost:3000/read", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    info: info,
+                    pivot: pivot
+                })
+            }).
+            then(function(response) {
+                return response.json();
+            }).then(function(json) {
+                deleteTableRow();
+                for(var i = 0; i < json.length; i++) {
+                    let row = document.createElement('tr');
+                    let col1 = document.createElement('th');
+                    col1.innerHTML = json[i].title;
+                    let col2 = document.createElement('th');
+                    col2.innerHTML = json[i].author;
+                    let col3 = document.createElement('th');
+                    col3.innerHTML = json[i].category;
+                    let col4 = document.createElement('th');
+                    col4.innerHTML = json[i].price;
+                    let col5 = document.createElement('th');
+                    let input = document.createElement('input');
+                    input.setAttribute('type', 'button');
+                    input.setAttribute('value', '디테일확인');
+                    input.setAttribute('onclick', "goToDetail('" + json[i].title + "', '" + json[i].author + "')")
+                    row.appendChild(col1);
+                    row.appendChild(col2);
+                    row.appendChild(col3);
+                    row.appendChild(col4);
+                    row.appendChild(col5);
+                    col5.appendChild(input);
+                    table.appendChild(row);
+                }
+            })
+        }
+
+        function goToDetail(title, author) {
+            location.href='detailbook.html?title=' + title + '&' + 'author=' + author;
+        }
+        
+        function deleteTableRow() {
+            var table = document.getElementById('myTable')
+            if(table.rows.length !== 1) {
+                for(var i = 0; i <= table.rows.length; i++) {
+                    table.deleteRow(-1)
+                }
+            }
+        }
+
+        function start() {
+            showList('', '');
+        }
+    </script>
+</head>
+<body onload="start()">
+    <h1>도서 목록 페이지</h1>
+    <table id="myTable" border="1">
+        <tr>
+            <th>
+                제목
+                <input id="sortBtn" type="button" value="오름차순" onclick="showList('title', 'ASC')">
+                <input id="sortBtn" type="button" value="내림차순" onclick="showList('title', 'DESC')">
+            </th>
+            <th>
+                저자
+                <input id="sortBtn" type="button" value="오름차순" onclick="showList('author', 'ASC')">
+                <input id="sortBtn" type="button" value="내림차순" onclick="showList('author', 'DESC')">
+            </th>
+            <th>
+                분류
+                <input id="sortBtn" type="button" value="오름차순" onclick="showList('category', 'ASC')">
+                <input id="sortBtn" type="button" value="내림차순" onclick="showList('category', 'DESC')">
+            </th>
+            <th>
+                가격 정보
+                <input id="sortBtn" type="button" value="오름차순" onclick="showList('price', 'ASC')">
+                <input id="sortBtn" type="button" value="내림차순" onclick="showList('price', 'DESC')">
+            </th>
+            <th>
+                상세 정보 버튼
+            </th>
+        </tr>
+    </table>
+</body>
+</html>

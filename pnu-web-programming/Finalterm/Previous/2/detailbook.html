@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>도서 상세 정보</title>
+    <style>
+        img { 
+            width: 500px;
+            height: 500px;
+            margin-right: 30px;
+            float: left;
+        }
+        #container {
+            height: 500px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+        #bold {
+            font-size: 20px;
+            font-weight: 700;
+        }
+    </style>
+    <script>
+        function getDetail() {
+            const file = window.location.href;
+            const url = new URL(file)
+            const urlParams = url.searchParams;
+            var title = urlParams.get('title');
+            var author = urlParams.get('author');
+            fetch("http://localhost:3000/readDetail", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: title,
+                    author: author
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(myJSON) {
+                var image = document.getElementById('image')
+                var container = document.getElementById('container')
+                var p1 = document.createElement('p')
+                var p2 = document.createElement('p')
+                var p3 = document.createElement('p')
+                var p4 = document.createElement('p')
+                var p5 = document.createElement('p')
+                var p6 = document.createElement('p')
+                var p7 = document.createElement('p')
+                p1.setAttribute('id', 'bold')
+                p7.setAttribute('id', 'bold')
+                image.setAttribute("src", myJSON[0].cover)
+                p1.innerHTML = '[' + myJSON[0].category + '] ' + myJSON[0].title
+                p2.innerHTML = myJSON[0].author + ' 지음'
+                p3.innerHTML = myJSON[0].translator + ' 옮김'
+                p4.innerHTML = myJSON[0].publish + ' 퍼냄'
+                p5.innerHTML = myJSON[0].year + '년 ' + myJSON[0].month + ' 월 출간'
+                p6.innerHTML = '총 ' + myJSON[0].page + 'p'
+                p7.innerHTML = '정가: ' + myJSON[0].price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '원'
+                container.appendChild(p1)
+                container.appendChild(p2)
+                container.appendChild(p3)
+                container.appendChild(p4)
+                container.appendChild(p5)
+                container.appendChild(p6)
+                container.appendChild(p7)
+            })
+        }
+
+        function start() {
+            getDetail();
+        }
+    </script>
+</head>
+<body onload="start()">
+    <h1>도서 상세 정보 페이지</h1>
+    <img id="image">
+    <div id="container"></div>
+</body>
+</html>
