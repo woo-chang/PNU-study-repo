@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>즐겨찾기 등록</title>
+    <style>
+        #container {
+            padding-left: 20px;
+        }
+        #submitBtn {
+            width: 100px;
+            height: 30px;
+            background-color: #333333;
+            color: #FFFFFF;
+        }
+        #listBtn {
+            width: 100px;
+            height: 30px;
+            background-color: #333333;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+        #category {
+            width: 300px;
+        }
+        input {
+            width: 300px;
+        }
+        label {
+            display: block;
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        function checkInput() {
+            if(document.forms[0].name.value == '' || document.forms[0].link.value == '' ||
+               document.forms[0].image.value == '' || document.forms[0].count.value == '')
+            {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function addBook() {
+            if(checkInput()) {
+                window.alert('필요한 모든 정보를 입력해주시기 바랍니다.')
+                return;
+            }
+
+            var name = document.forms[0].name.value;
+            var link = document.forms[0].link.value
+            var image = document.forms[0].image.value
+            var count = document.forms[0].count.value
+            var selection = document.getElementById('category')
+            var category = selection.options[selection.selectedIndex].value;
+            
+
+            fetch("http://localhost:3000/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    link: link,
+                    image: image,
+                    count: count,
+                    category: category
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(myJSON) {
+                if(myJSON[0].error == 'error') {
+                    window.alert('저장실패 했거나 존재하는 이름입니다.')
+                } else {
+                    window.alert('저장성공')
+                }
+                document.getElementById('markForm').reset();  
+            }).catch(err => console.log(err))
+        }
+    </script>
+</head>
+<body>  
+    <div id="container">
+        <h1 id="head">즐겨찾기 등록 페이지</h1>
+        <form id="markForm" name="markForm" method="post">
+            <label>이름: <input type="text" id="name" required></input></label>
+            <label>링크 주소: <input type="text" id="link" required></input></label>
+            <label>분류: 
+                <select id="category">
+                    <option value="대학">대학</option>
+                    <option value="포털">포털</option>
+                    <option value="뉴스">뉴스</option>
+                    <option value="블로그">블로그</option>
+                    <option value="기업">기업</option>
+                </select>
+            </label>
+            
+            <label>이미지: <input type="text" id="image" required></input></label>
+            <label>방문 횟수: <input type="number" id="count" required></input></label>
+            
+            <input id="submitBtn" type="button" onclick="addBook()" value="즐겨찾기 등록">
+            <input id="listBtn" type="button" onclick="location.href='marklist.html'" value="즐겨찾기 목록">
+        </form>
+    </div>
+    
+</body>
+</html>

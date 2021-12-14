@@ -1,0 +1,15 @@
+<?xml version = "1.0"?>
+<?xml-stylesheet type = "text/xsl" href = "mark.xsl"?>
+
+<mark isbn = "1">
+    <image>http://images.khan.co.kr/article/2020/06/05/2020060502000258600052401.jpg</image>
+
+    <classify>기업</classify>
+
+    <name>넥슨</name>
+
+    <link>http://www.nexon.com</link>
+
+    <count>5</count>
+
+</mark>

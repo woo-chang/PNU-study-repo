@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>즐겨찾기 목록 페이지</title>
+    <style>
+        table {
+            width: 1000px;
+        }
+        tr {
+            height: 50px;
+        }
+        #sortBtn {
+            width: 60px;
+            height: 30px;
+        }
+    </style>
+    <script>
+        function showList(info='', pivot='') {
+            deleteTableRow();
+            var tbody = document.getElementById('myTbody')
+            fetch("http://localhost:3000/read", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    info: info,
+                    pivot: pivot
+                })
+            }).
+            then(function(response) {
+                return response.json();
+            }).then(function(json) {
+                for(var i = 0; i < json.length; i++) {
+                    var row = document.createElement('tr');
+                    var col1 = document.createElement('th');
+                    col1.innerHTML = '<a href="' + json[i].link + '">' + json[i].name + '</a>'
+                    var col2 = document.createElement('th');
+                    col2.innerHTML = json[i].link;
+                    var col3 = document.createElement('th');
+                    col3.innerHTML = json[i].category;
+                    var col4 = document.createElement('th');
+                    col4.innerHTML = json[i].image;
+                    var col5 = document.createElement('th');
+                    col5.innerHTML = json[i].count
+                    var col6 = document.createElement('th');
+                    var input1 = document.createElement('input');
+                    input1.setAttribute('type', 'button');
+                    input1.setAttribute('value', '수정');
+                    input1.setAttribute('onclick', "editMark('" + json[i].name + "')")
+                    var input2 = document.createElement('input');
+                    input2.setAttribute('type', 'button');
+                    input2.setAttribute('value', '삭제');
+                    input2.setAttribute('onclick', "deleteMark('" + json[i].name + "')")
+                    col6.appendChild(input1);
+                    col6.appendChild(input2);
+                    row.appendChild(col1);
+                    row.appendChild(col2);
+                    row.appendChild(col3);
+                    row.appendChild(col4);
+                    row.appendChild(col5);
+                    row.appendChild(col6);
+                    tbody.appendChild(row);
+                }
+            })
+        }
+
+        function editMark(name) {
+            deleteTableRow();
+            var headSelection = document.getElementById("headCategory")
+            var info = headSelection.options[headSelection.selectedIndex].value;
+            var sortSelection = document.getElementById("sortCategory")
+            var pivot = sortSelection.options[sortSelection.selectedIndex].value;
+            var tbody = document.getElementById('myTbody')
+            fetch("http://localhost:3000/read", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    info: info,
+                    pivot: pivot
+                })
+            }).
+            then(function(response) {
+                return response.json();
+            }).then(function(json) {
+                for(var i = 0; i < json.length; i++) {
+                    var input3 = document.createElement('input');
+                    input3.setAttribute('type', 'text');
+                    input3.setAttribute('id', 'id31');
+                    var input4 = document.createElement('input');
+                    input4.setAttribute('type', 'text');
+                    input3.setAttribute('id', 'id41');
+                    var input5 = document.createElement('input');
+                    input5.setAttribute('type', 'text');
+                    input3.setAttribute('id', 'id51');
+                    var row = document.createElement('tr');
+                    var col1 = document.createElement('th');
+                    col1.innerHTML = '<a href="' + json[i].link + '">' + json[i].name + '</a>'
+                    var col2 = document.createElement('th');
+                    var col3 = document.createElement('th');
+                    var col4 = document.createElement('th');
+                    var col5 = document.createElement('th');
+                    col5.innerHTML = json[i].count
+                    var col6 = document.createElement('th');
+                    var input1 = document.createElement('input');
+                    input1.setAttribute('type', 'button');
+                    input1.setAttribute('value', '수정');
+                    input1.setAttribute('onclick', "editAll('" + json[i].name + "')")
+                    var input2 = document.createElement('input');
+                    input2.setAttribute('type', 'button');
+                    input2.setAttribute('value', '삭제');
+                    input2.setAttribute('onclick', "deleteMark('" + json[i].name + "')")
+                    col2.appendChild(input3)
+                    col3.appendChild(input4)
+                    col4.appendChild(input5)
+                    col6.appendChild(input1);
+                    col6.appendChild(input2);
+                    row.appendChild(col1);
+                    row.appendChild(col2);
+                    row.appendChild(col3);
+                    row.appendChild(col4);
+                    row.appendChild(col5);
+                    row.appendChild(col6);
+                    tbody.appendChild(row);
+                }
+            })
+        }
+
+        function editAll(name) {
+            var text1 = document.getElementById('id31').value;
+            var text2 = document.getElementById('id41').value;
+            var text3 = document.getElementById('id51').value;
+            fetch("http://localhost:3000/edit", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    link: text1,
+                    category: text2,
+                    image: text3
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(myJSON) {
+                sortBy()
+            })
+        }
+
+        function deleteMark(name) {
+            fetch("http://localhost:3000/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: JSON.stringify({
+                    name: name
+                })
+            }).then(function(response) {
+                return response.json();
+            }).then(function(myJSON) {
+                sortBy()
+            })
+        }
+        
+        function deleteTableRow() {
+            var tbody = document.getElementById('myTbody')
+            if (tbody.rows.length < 1) return;
+            var totalLength = tbody.rows.length;
+            for(var i = 0; i < totalLength; i++) {
+                tbody.deleteRow(-1)
+            }
+        }
+
+        function sortBy() {
+            var headSelection = document.getElementById("headCategory")
+            var headItem = headSelection.options[headSelection.selectedIndex].value;
+            var sortSelection = document.getElementById("sortCategory")
+            var sortItem = sortSelection.options[sortSelection.selectedIndex].value;
+            showList(headItem, sortItem)
+        }
+
+        function start() {
+            sortBy();
+        }
+    </script>
+</head>
+<body onload="start()">
+    <select id="headCategory" name="head" onchange="sortBy()">
+        <option value="name">이름</option>
+        <option value="category">분류</option>
+        <option value="count">방문 횟수</option>
+    </select>
+    <select id="sortCategory" name="sort" onchange="sortBy()">
+        <option value="ASC">오름차순</option>
+        <option value="DESC">내림차순</option>
+    </select>
+    <h1>도서 목록 페이지</h1>
+    <table id="myTable" border="1">
+        <thead>
+            <th>
+                이름
+            </th>
+            <th>
+                링크주소
+            </th>
+            <th>
+                분류
+            </th>
+            <th>
+                대표 이미지
+            </th>
+            <th>
+                방문 횟수
+            </th>
+            <th>
+                수정, 삭제
+            </th>
+        </thead>
+        <tbody id="myTbody"></tbody>
+    </table>
+</body>
+</html>
