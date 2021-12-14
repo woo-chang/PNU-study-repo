@@ -92,8 +92,9 @@
             }).then(function(response) {
                 return response.json();
             }).then(function(myJSON) {
-                window.alert('저장 성공!')
-                document.getElementById('bookForm').reset();
+                window.alert(myJSON.success)
+                window.alert('저장성공')
+                document.getElementById('bookForm').reset();  
             }).catch(err => console.log(err))
         }
     </script>
@@ -101,7 +102,7 @@
 <body>  
     <div id="container">
         <h1 id="head">도서 등록 페이지</h1>
-        <form name="bookForm" method="post">
+        <form id="bookForm" name="bookForm" method="post">
             <!-- 나머지는 모두 입력되어야 함 -->
             <label>표지: <input type="text" id="cover" required></input></label>
             <label>제목: <input type="text" id="title" required></input></label>

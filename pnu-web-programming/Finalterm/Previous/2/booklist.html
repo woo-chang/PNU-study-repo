@@ -17,7 +17,8 @@
     </style>
     <script>
         function showList(info='', pivot='') {
-            var table = document.getElementById('myTable')
+            deleteTableRow();
+            var tbody = document.getElementById('myTbody')
             fetch("http://localhost:3000/read", {
                 method: "POST",
                 headers: {
@@ -31,19 +32,18 @@
             then(function(response) {
                 return response.json();
             }).then(function(json) {
-                deleteTableRow();
                 for(var i = 0; i < json.length; i++) {
-                    let row = document.createElement('tr');
-                    let col1 = document.createElement('th');
+                    var row = document.createElement('tr');
+                    var col1 = document.createElement('th');
                     col1.innerHTML = json[i].title;
-                    let col2 = document.createElement('th');
+                    var col2 = document.createElement('th');
                     col2.innerHTML = json[i].author;
-                    let col3 = document.createElement('th');
+                    var col3 = document.createElement('th');
                     col3.innerHTML = json[i].category;
-                    let col4 = document.createElement('th');
+                    var col4 = document.createElement('th');
                     col4.innerHTML = json[i].price;
-                    let col5 = document.createElement('th');
-                    let input = document.createElement('input');
+                    var col5 = document.createElement('th');
+                    var input = document.createElement('input');
                     input.setAttribute('type', 'button');
                     input.setAttribute('value', '디테일확인');
                     input.setAttribute('onclick', "goToDetail('" + json[i].title + "', '" + json[i].author + "')")
@@ -53,7 +53,7 @@
                     row.appendChild(col4);
                     row.appendChild(col5);
                     col5.appendChild(input);
-                    table.appendChild(row);
+                    tbody.appendChild(row);
                 }
             })
         }
@@ -63,47 +63,58 @@
         }
         
         function deleteTableRow() {
-            var table = document.getElementById('myTable')
-            if(table.rows.length !== 1) {
-                for(var i = 0; i <= table.rows.length; i++) {
-                    table.deleteRow(-1)
-                }
+            var tbody = document.getElementById('myTbody')
+            if (tbody.rows.length < 1) return;
+            var totalLength = tbody.rows.length;
+            for(var i = 0; i < totalLength; i++) {
+                tbody.deleteRow(-1)
             }
         }
 
+        function sortBy() {
+            var headSelection = document.getElementById("headCategory")
+            var headItem = headSelection.options[headSelection.selectedIndex].value;
+            var sortSelection = document.getElementById("sortCategory")
+            var sortItem = sortSelection.options[sortSelection.selectedIndex].value;
+            showList(headItem, sortItem)
+        }
+
         function start() {
-            showList('', '');
+            sortBy();
         }
     </script>
 </head>
 <body onload="start()">
+    <select id="headCategory" name="head" onchange="sortBy()">
+        <option value="title">제목</option>
+        <option value="author">저자</option>
+        <option value="category">분류</option>
+        <option value="price">가격 정보</option>
+    </select>
+    <select id="sortCategory" name="sort" onchange="sortBy()">
+        <option value="ASC">오름차순</option>
+        <option value="DESC">내림차순</option>
+    </select>
     <h1>도서 목록 페이지</h1>
     <table id="myTable" border="1">
-        <tr>
+        <thead>
             <th>
                 제목
-                <input id="sortBtn" type="button" value="오름차순" onclick="showList('title', 'ASC')">
-                <input id="sortBtn" type="button" value="내림차순" onclick="showList('title', 'DESC')">
             </th>
             <th>
                 저자
-                <input id="sortBtn" type="button" value="오름차순" onclick="showList('author', 'ASC')">
-                <input id="sortBtn" type="button" value="내림차순" onclick="showList('author', 'DESC')">
             </th>
             <th>
                 분류
-                <input id="sortBtn" type="button" value="오름차순" onclick="showList('category', 'ASC')">
-                <input id="sortBtn" type="button" value="내림차순" onclick="showList('category', 'DESC')">
             </th>
             <th>
                 가격 정보
-                <input id="sortBtn" type="button" value="오름차순" onclick="showList('price', 'ASC')">
-                <input id="sortBtn" type="button" value="내림차순" onclick="showList('price', 'DESC')">
             </th>
             <th>
-                상세 정보 버튼
+                상세 정보
             </th>
-        </tr>
+        </thead>
+        <tbody id="myTbody"></tbody>
     </table>
 </body>
 </html>

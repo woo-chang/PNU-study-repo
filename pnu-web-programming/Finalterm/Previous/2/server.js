@@ -43,6 +43,7 @@ app.post('/create', function(req, res) {
     '", month = "' + month + '", page = "' + page + '", price = "' + price + '"', function(error, rows, fields) {
         if (!error) {
             console.log("insert Success.");
+            res.json({ success: "good"});
         }
         else {
             console.log(error);
