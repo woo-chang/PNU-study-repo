@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+    </script>
+    <meta charset="UTF-8" />
+    <title>Assignment 2</title>
+    <style>
+        #container {
+            width: '100%';
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 80px;
+        }
+        #box {
+            width: '100%';
+        }
+        #boxTitle {
+            font-size: 16pt;
+            margin-bottom: 10px;
+        }
+        #boxBtn {
+            margin-bottom: 15px;
+            height: 25px;
+            color: white;
+            background-color: #47C83E;
+            border: 0px;
+            border-radius: 3px;
+        }
+        #tableResult {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 10px;
+            padding-right: 10px;
+            border: 3px solid black;
+            word-break: break-all;
+            font-size: 12pt;
+            font-weight: 600;
+        }
+        table {
+            width: 100%;
+            border: 1px solid #444444;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #444444;
+            padding: 10px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id='container'>
+        <div id='box'>
+            <p id='boxTitle'>Students table</p>
+            <form action="{% url 'students' %}" method="post">
+                {% csrf_token %}
+                <button id='boxBtn' type="submit">+ Add records from csv</button>
+            </form>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>StudentID</td>
+                            <td>Name</td>
+                            <td>Score</td>
+                            <td>County</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in Students %}
+                            <tr>
+                                <td>{{ student.studentID }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.score }}</td>
+                                <td>{{ student.county }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Professors table</p>
+            <form action="{% url 'professors' %}" method="post">
+                {% csrf_token %}
+                <button id='boxBtn' type="submit">+ Add records from csv</button>
+            </form>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>FacultyID</td>
+                            <td>Name</td>
+                            <td>Age</td>
+                            <td>County</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for professor in Professors %}
+                            <tr>
+                                <td>{{ professor.facultyID }}</td>
+                                <td>{{ professor.name }}</td>
+                                <td>{{ professor.age }}</td>
+                                <td>{{ professor.county }}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Counties table</p>
+            <form action="{% url 'counties' %}" method="post">
+                {% csrf_token %}
+                <button id='boxBtn' type="submit">+ Add records from csv</button>
+            </form>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>CountyName</td>
+                            <td>Population</td>
+                            <td>City</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for county in Counties %}
+                            <tr>
+                                <td>{{ county.countyName }}</td>
+                                <td>{{ county.population }}</td>
+                                <td>{{ county.city }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>COVID table</p>
+            <form action="{% url 'covid' %}" method="post">
+                {% csrf_token %}
+                <button id='boxBtn' type="submit">+ Add records from csv</button>
+            </form>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>PatientID</td>
+                            <td>City</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for covid in COVID %}
+                            <tr>
+                                <td>{{ covid.patientID }}</td>
+                                <td>{{ covid.city }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Query #1:</p>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>CountyName</td>
+                            <td>averageScore</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query1 in Query1 %}
+                            <tr>
+                                <td>{{ query1.countyName }}</td>
+                                <td>{{ query1.averageScore }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Query #2:</p>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>CityName</td>
+                            <td>averageScore</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query2 in Query2 %}
+                            <tr>
+                                <td>{{ query2.cityName }}</td>
+                                <td>{{ query2.averageScore }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Query #3:</p>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ProfessorName</td>
+                            <td>StudentName</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query3 in Query3 %}
+                            <tr>
+                                <td>{{ query3.professorName }}</td>
+                                <td>{{ query3.studentName }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Query #4:</p>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ProfessorName</td>
+                            <td>StudentName</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query4 in Query4 %}
+                            <tr>
+                                <td>{{ query4.professorName }}</td>
+                                <td>{{ query4.studentName }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id='box'>
+            <p id='boxTitle'>Query #5:</p>
+            <div id='tableResult'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>StudentName</td>
+                            <td>CityName</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query5 in Query5 %}
+                            <tr>
+                                <td>{{ query5.studentName }}</td>
+                                <td>{{ query5.cityName }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
